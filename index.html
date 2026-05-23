@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Super Artkal — Bügelperlen-Vorlagen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-title">SUPER ARTKAL</h1>
+    <p class="site-subtitle">Bügelperlen-Vorlagen für Artkal A Mini (2,6&nbsp;mm)</p>
+    <p class="disclaimer">
+      Hinweis: Artikelnummern beziehen sich auf gängige Artkal-A-Mini-Codes
+      und sollten gegen das eigene Sortiment geprüft werden.
+    </p>
+  </header>
+
+  <nav class="toolbar" aria-label="Filter und Sortierung">
+    <div class="toolbar-group">
+      <label for="filter-game">Spiel</label>
+      <select id="filter-game" class="pill"></select>
+    </div>
+    <div class="toolbar-group" id="filter-categories">
+      <label>Kategorie</label>
+      <!-- Pills werden in app.js eingefügt -->
+    </div>
+    <div class="toolbar-group">
+      <label for="sort-by">Sortierung</label>
+      <select id="sort-by" class="pill">
+        <option value="name-asc">Name A-Z</option>
+        <option value="name-desc">Name Z-A</option>
+        <option value="size-asc">Größe ↑</option>
+        <option value="size-desc">Größe ↓</option>
+        <option value="beads-asc">Perlen ↑</option>
+        <option value="beads-desc">Perlen ↓</option>
+      </select>
+    </div>
+    <div class="toolbar-group">
+      <button id="open-total" class="btn">Gesamtliste</button>
+    </div>
+  </nav>
+
+  <main id="gallery" class="gallery" aria-label="Vorlagen-Galerie"></main>
+
+  <footer class="site-footer">
+    <p>Made with ♥ Pixel · Artkal A Mini · Kein offizielles Artkal-Produkt</p>
+  </footer>
+
+  <!-- Detail-Modal -->
+  <div id="detail-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="detail-title" class="modal-title">Vorlage</h2>
+        <button class="btn btn-secondary" data-close="detail">Schließen</button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <div class="detail-controls">
+            <button class="pill" id="toggle-bg" aria-pressed="false">Mit Hintergrund</button>
+            <button class="pill" id="toggle-overlay" aria-pressed="false">5er-Raster</button>
+          </div>
+          <div class="detail-preview-wrap">
+            <div id="detail-grid" class="detail-pixel-grid"></div>
+          </div>
+          <p class="card-meta" id="detail-meta"></p>
+        </div>
+        <div>
+          <h3 style="font-size:12px;margin:0 0 8px">Materialliste</h3>
+          <div id="detail-materials"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="detail-print">Drucken</button>
+        <button class="btn" data-close="detail">Fertig</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gesamtliste-Modal -->
+  <div id="total-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="total-title">
+    <div class="modal total-list">
+      <div class="modal-header">
+        <h2 id="total-title" class="modal-title">Gesamt-Materialliste</h2>
+        <button class="btn btn-secondary" data-close="total">Schließen</button>
+      </div>
+      <div class="modal-body" style="grid-template-columns:1fr">
+        <div>
+          <div class="total-meta" id="total-meta"></div>
+          <div id="total-materials"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="total-copy">Als Text kopieren</button>
+        <button class="btn" data-close="total">Fertig</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tooltip" role="tooltip"></div>
+
+  <!-- Druckbereich (nur im Druck sichtbar) -->
+  <div id="print-view" class="print-view" aria-hidden="true"></div>
+
+  <script src="palette.js"></script>
+  <script src="templates.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
