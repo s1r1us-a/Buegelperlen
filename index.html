@@ -12,14 +12,14 @@
 <body>
   <header class="site-header">
     <h1 class="site-title">SUPER ARTKAL</h1>
-    <p class="site-subtitle">Bügelperlen-Vorlagen für Artkal A Mini (2,6&nbsp;mm)</p>
+    <p class="site-subtitle">Bügelperlen-Studio für Artkal A Mini (2,6&nbsp;mm)</p>
     <p class="disclaimer">
       Hinweis: Artikelnummern beziehen sich auf gängige Artkal-A-Mini-Codes
       und sollten gegen das eigene Sortiment geprüft werden.
     </p>
   </header>
 
-  <nav class="toolbar" aria-label="Filter und Sortierung">
+  <nav class="toolbar" aria-label="Filter und Werkzeuge">
     <div class="toolbar-group">
       <label for="filter-game">Spiel</label>
       <select id="filter-game" class="pill"></select>
@@ -27,6 +27,9 @@
     <div class="toolbar-group" id="filter-categories">
       <label>Kategorie</label>
       <!-- Pills werden in app.js eingefügt -->
+    </div>
+    <div class="toolbar-group">
+      <button id="filter-fav" class="pill" aria-pressed="false" title="Nur Favoriten zeigen">♥ Favoriten</button>
     </div>
     <div class="toolbar-group">
       <label for="sort-by">Sortierung</label>
@@ -39,8 +42,10 @@
         <option value="beads-desc">Perlen ↓</option>
       </select>
     </div>
-    <div class="toolbar-group">
-      <button id="open-total" class="btn">Gesamtliste</button>
+    <div class="toolbar-group toolbar-actions">
+      <button id="open-editor" class="btn">✏ Editor</button>
+      <button id="open-converter" class="btn">🖼 Bild-Konverter</button>
+      <button id="open-project" class="btn btn-secondary">Projektliste</button>
     </div>
   </nav>
 
@@ -64,38 +69,134 @@
             <button class="pill" id="toggle-overlay" aria-pressed="false">5er-Raster</button>
           </div>
           <div class="detail-preview-wrap">
-            <div id="detail-grid" class="detail-pixel-grid"></div>
+            <div id="detail-grid" class="canvas-host"></div>
           </div>
           <p class="card-meta" id="detail-meta"></p>
         </div>
         <div>
-          <h3 style="font-size:12px;margin:0 0 8px">Materialliste</h3>
+          <h3 class="section-title">Materialliste</h3>
           <div id="detail-materials"></div>
         </div>
       </div>
       <div class="modal-footer">
+        <button class="btn btn-secondary" id="detail-edit">Im Editor öffnen</button>
         <button class="btn btn-secondary" id="detail-print">Drucken</button>
         <button class="btn" data-close="detail">Fertig</button>
       </div>
     </div>
   </div>
 
-  <!-- Gesamtliste-Modal -->
-  <div id="total-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="total-title">
+  <!-- Projekt-/Einkaufsliste-Modal -->
+  <div id="project-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="project-title">
     <div class="modal total-list">
       <div class="modal-header">
-        <h2 id="total-title" class="modal-title">Gesamt-Materialliste</h2>
-        <button class="btn btn-secondary" data-close="total">Schließen</button>
+        <h2 id="project-title" class="modal-title">Projekt- & Einkaufsliste</h2>
+        <button class="btn btn-secondary" data-close="project">Schließen</button>
       </div>
       <div class="modal-body" style="grid-template-columns:1fr">
         <div>
-          <div class="total-meta" id="total-meta"></div>
-          <div id="total-materials"></div>
+          <div id="project-items" class="project-items"></div>
+          <div class="total-meta" id="project-meta"></div>
+          <div id="project-materials"></div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" id="total-copy">Als Text kopieren</button>
-        <button class="btn" data-close="total">Fertig</button>
+        <button class="btn btn-secondary" id="project-clear">Leeren</button>
+        <button class="btn btn-secondary" id="project-csv">CSV laden</button>
+        <button class="btn btn-secondary" id="project-copy">Als Text kopieren</button>
+        <button class="btn" data-close="project">Fertig</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor-Modal -->
+  <div id="editor-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+    <div class="modal editor-modal">
+      <div class="modal-header">
+        <h2 id="editor-title" class="modal-title">Pattern-Editor</h2>
+        <button class="btn btn-secondary" data-close="editor">Schließen</button>
+      </div>
+      <div class="editor-layout">
+        <div class="editor-side">
+          <div class="editor-row">
+            <label>Größe</label>
+            <input type="number" id="editor-w" class="num" min="4" max="64" value="16">
+            <span>×</span>
+            <input type="number" id="editor-h" class="num" min="4" max="64" value="16">
+            <button class="pill" id="editor-new">Neu</button>
+          </div>
+          <div class="editor-row" id="editor-tools">
+            <button class="pill active" data-tool="pencil">✏ Stift</button>
+            <button class="pill" data-tool="fill">🪣 Füllen</button>
+            <button class="pill" data-tool="pipette">💉 Pipette</button>
+            <button class="pill" data-tool="eraser">⌫ Radierer</button>
+          </div>
+          <div class="editor-palette" id="editor-palette"></div>
+        </div>
+        <div class="editor-main">
+          <div class="editor-canvas-wrap canvas-host" id="editor-canvas-host">
+            <canvas id="editor-canvas"></canvas>
+          </div>
+          <p class="card-meta" id="editor-count"></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="editor-undo">↶ Undo</button>
+        <button class="btn btn-secondary" id="editor-redo">↷ Redo</button>
+        <button class="btn btn-secondary" id="editor-png">PNG</button>
+        <button class="btn btn-secondary" id="editor-print">Drucken</button>
+        <button class="btn" id="editor-save">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bild-Konverter-Modal -->
+  <div id="converter-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="converter-title">
+    <div class="modal converter-modal">
+      <div class="modal-header">
+        <h2 id="converter-title" class="modal-title">Bild → Vorlage</h2>
+        <button class="btn btn-secondary" data-close="converter">Schließen</button>
+      </div>
+      <div class="modal-body" style="grid-template-columns:280px 1fr">
+        <div class="converter-controls">
+          <label class="field">
+            <span>Bild wählen</span>
+            <input type="file" id="conv-file" accept="image/*">
+          </label>
+          <label class="field">
+            <span>Breite (Perlen): <strong id="conv-width-val">48</strong></span>
+            <input type="range" id="conv-width" min="8" max="96" value="48">
+          </label>
+          <label class="field">
+            <span>Helligkeit</span>
+            <input type="range" id="conv-bright" min="-100" max="100" value="0">
+          </label>
+          <label class="field">
+            <span>Kontrast</span>
+            <input type="range" id="conv-contrast" min="50" max="200" value="100">
+          </label>
+          <label class="check">
+            <input type="checkbox" id="conv-transparent"> Helle Pixel weglassen
+          </label>
+          <label class="field">
+            <span>Helligkeits-Schwelle</span>
+            <input type="range" id="conv-threshold" min="100" max="255" value="235">
+          </label>
+          <label class="check">
+            <input type="checkbox" id="conv-dither"> Dithering (Floyd-Steinberg)
+          </label>
+        </div>
+        <div>
+          <div class="converter-preview canvas-host" id="conv-preview"></div>
+          <p class="card-meta" id="conv-meta">Bild wählen, um zu starten.</p>
+          <div id="conv-materials"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="conv-print">Drucken</button>
+        <button class="btn btn-secondary" id="conv-edit">Im Editor öffnen</button>
+        <button class="btn" id="conv-save">Als Vorlage speichern</button>
+        <button class="btn btn-secondary" data-close="converter">Fertig</button>
       </div>
     </div>
   </div>
@@ -107,6 +208,10 @@
 
   <script src="palette.js"></script>
   <script src="templates.js"></script>
+  <script src="render.js"></script>
+  <script src="storage.js"></script>
+  <script src="editor.js"></script>
+  <script src="converter.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
