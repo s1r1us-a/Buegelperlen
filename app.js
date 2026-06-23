@@ -8,6 +8,7 @@
     game: "all",
     category: "Alle",
     sortBy: "name-asc",
+    favOnly: false,
     detail: { id: null, withBg: false, overlay: false },
   };
 
@@ -40,6 +41,14 @@
     return node;
   }
 
+  // Eingebaute + eigene (gespeicherte) Vorlagen.
+  function allTemplates() {
+    return TEMPLATES.concat(Store.getCustom());
+  }
+  function findTemplate(id) {
+    return allTemplates().find((t) => t.id === id) || null;
+  }
+
   function countBeads(grid, bgColor) {
     const counts = {};
     for (let y = 0; y < grid.length; y++) {
@@ -54,63 +63,29 @@
     }
     return counts;
   }
-
   function sumCounts(counts) {
     return Object.values(counts).reduce((a, b) => a + b, 0);
   }
 
-  function paletteEntry(code) {
-    return PALETTE[code] || { name: code, hex: "#FF00FF" };
-  }
-
   // ============================================================
-  // Render: Pixel Grid
+  // Render: Bead-Canvas + Tooltip
   // ============================================================
 
-  function buildPixelGrid(template, opts) {
-    const { withBg = false, pixelSize = null, overlay = false, withTooltip = false } = opts || {};
-    const cols = template.width;
-    const rows = template.height;
-    const gridEl = el("div", { class: "pixel-grid" });
-    if (overlay) gridEl.classList.add("with-overlay");
-
-    gridEl.style.gridTemplateColumns = `repeat(${cols}, ${pixelSize ? pixelSize + "px" : "1fr"})`;
-    gridEl.style.gridTemplateRows = `repeat(${rows}, ${pixelSize ? pixelSize + "px" : "1fr"})`;
-    if (pixelSize) {
-      gridEl.style.width = (cols * pixelSize) + "px";
-      gridEl.style.height = (rows * pixelSize) + "px";
-    } else {
-      gridEl.style.width = "100%";
-      gridEl.style.maxWidth = (cols * 16) + "px";
-    }
-
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        let code = template.grid[y][x];
-        const isEmpty = code == null;
-        if (isEmpty && withBg) code = template.bgColor;
-
-        const pixel = el("div", { class: "pixel" });
-        if (code != null) {
-          pixel.style.background = paletteEntry(code).hex;
-        } else {
-          pixel.style.background = "transparent";
-        }
-
-        if (overlay) {
-          if ((x + 1) % 5 === 0 && x < cols - 1) pixel.classList.add("gridmark-x");
-          if ((y + 1) % 5 === 0 && y < rows - 1) pixel.classList.add("gridmark-y");
-        }
-
-        if (withTooltip && code != null) {
-          const p = paletteEntry(code);
-          pixel.dataset.tooltip = `${code} · ${p.name}`;
-        }
-
-        gridEl.appendChild(pixel);
-      }
-    }
-    return gridEl;
+  function attachTooltip(canvas, template) {
+    const tip = document.getElementById("tooltip");
+    canvas.addEventListener("mousemove", (e) => {
+      const hit = BeadCanvas.hitTest(canvas, e.clientX, e.clientY);
+      if (!hit) { tip.classList.remove("visible"); return; }
+      let code = template.grid[hit.y][hit.x];
+      if (code == null && state.detail.withBg) code = template.bgColor;
+      if (code == null) { tip.classList.remove("visible"); return; }
+      const p = paletteEntry(code);
+      tip.textContent = `${code} · ${p.name}`;
+      tip.style.left = (e.clientX + 14) + "px";
+      tip.style.top = (e.clientY + 14) + "px";
+      tip.classList.add("visible");
+    });
+    canvas.addEventListener("mouseleave", () => tip.classList.remove("visible"));
   }
 
   // ============================================================
@@ -157,9 +132,11 @@
     const gallery = document.getElementById("gallery");
     gallery.innerHTML = "";
 
-    const filtered = TEMPLATES
-      .filter(t => state.game === "all" || t.game === state.game)
-      .filter(t => state.category === "Alle" || t.category === state.category);
+    const favs = Store.getFavorites();
+    const filtered = allTemplates()
+      .filter((t) => state.game === "all" || t.game === state.game)
+      .filter((t) => state.category === "Alle" || t.category === state.category)
+      .filter((t) => !state.favOnly || favs.indexOf(t.id) !== -1);
 
     const sorted = filtered.slice().sort((a, b) => {
       switch (state.sortBy) {
@@ -174,42 +151,83 @@
     });
 
     if (sorted.length === 0) {
-      gallery.appendChild(el("p", { class: "card-meta" }, "Keine Vorlagen passen zu den Filtern."));
+      gallery.appendChild(el("p", { class: "empty-hint" }, "Keine Vorlagen passen zu den Filtern."));
       return;
     }
 
     for (const t of sorted) {
-      const beadCount = sumCounts(countBeads(t.grid));
-      const card = el("div", { class: "card" }, [
-        el("h2", { class: "card-name" }, t.name),
-        el("p", { class: "card-meta" }, [
-          `${t.width}×${t.height} · ${beadCount} Perlen`,
-          el("span", { class: "category" }, t.category),
-        ]),
-        el("div", { class: "card-preview-wrap" },
-          buildPixelGrid(t, { withBg: false, pixelSize: Math.min(12, Math.floor(220 / t.width)) })),
-        el("div", { class: "card-actions" }, [
-          el("button", {
-            class: "btn",
-            onClick: () => openDetail(t.id),
-          }, "Details"),
-          el("button", {
-            class: "btn btn-secondary",
-            onClick: () => printSingle(t.id),
-          }, "Drucken"),
-        ]),
-      ]);
-      gallery.appendChild(card);
+      gallery.appendChild(buildCard(t));
     }
   }
 
+  function buildCard(t) {
+    const beadCount = sumCounts(countBeads(t.grid));
+    const isFav = Store.isFavorite(t.id);
+    const inProj = Store.inProject(t.id);
+    const isCustom = t.game === "Meine Vorlagen";
+
+    const favBtn = el("button", {
+      class: "fav-btn" + (isFav ? " on" : ""),
+      title: "Favorit",
+      onClick: (e) => {
+        const now = Store.toggleFavorite(t.id);
+        e.currentTarget.classList.toggle("on", now);
+        if (state.favOnly && !now) renderGallery();
+      },
+    }, isFav ? "♥" : "♡");
+
+    const previewWrap = el("div", { class: "card-preview-wrap" });
+    const canvas = el("canvas");
+    const cell = Math.max(6, Math.min(16, Math.floor(230 / t.width)));
+    previewWrap.appendChild(canvas);
+    BeadCanvas.drawGrid(canvas, t, { cellSize: cell });
+    attachTooltip(canvas, t);
+
+    const actions = [
+      el("button", { class: "btn", onClick: () => openDetail(t.id) }, "Details"),
+      el("button", {
+        class: "btn btn-secondary" + (inProj ? " active" : ""),
+        title: "Zur Projektliste",
+        onClick: (e) => {
+          const cur = Store.getProject()[t.id] || 0;
+          Store.setProjectQty(t.id, cur + 1);
+          e.currentTarget.classList.add("active");
+          e.currentTarget.textContent = "Im Projekt ✓";
+        },
+      }, inProj ? "Im Projekt ✓" : "+ Projekt"),
+      el("button", { class: "btn btn-secondary", onClick: () => printTemplate(t.id) }, "Drucken"),
+    ];
+    if (isCustom) {
+      actions.push(el("button", { class: "btn btn-secondary", onClick: () => Editor.open(t, refreshAll) }, "Bearbeiten"));
+      actions.push(el("button", {
+        class: "btn btn-danger",
+        onClick: () => { if (confirm(`„${t.name}" löschen?`)) { Store.deleteCustom(t.id); refreshAll(); } },
+      }, "Löschen"));
+    }
+
+    return el("div", { class: "card" }, [
+      el("div", { class: "card-head" }, [
+        el("h2", { class: "card-name" }, t.name),
+        favBtn,
+      ]),
+      el("p", { class: "card-meta" }, [
+        `${t.width}×${t.height} · ${beadCount} Perlen`,
+        el("span", { class: "category" }, t.category),
+      ]),
+      previewWrap,
+      el("div", { class: "card-actions" }, actions),
+    ]);
+  }
+
   // ============================================================
-  // Filter / Sort Wiring
+  // Filter / Sort / Nav Wiring
   // ============================================================
 
   function setupToolbar() {
-    const games = ["all", ...new Set(TEMPLATES.map(t => t.game))];
+    const tpls = allTemplates();
+    const games = ["all", ...new Set(tpls.map((t) => t.game))];
     const gameSel = document.getElementById("filter-game");
+    const prev = gameSel.value;
     gameSel.innerHTML = "";
     for (const g of games) {
       const opt = document.createElement("option");
@@ -217,32 +235,28 @@
       opt.textContent = g === "all" ? "Alle Spiele" : g;
       gameSel.appendChild(opt);
     }
-    gameSel.addEventListener("change", e => {
-      state.game = e.target.value;
-      renderGallery();
-    });
+    if (games.indexOf(prev) !== -1) gameSel.value = prev; else state.game = "all";
+    gameSel.onchange = (e) => { state.game = e.target.value; renderGallery(); };
 
     const catGroup = document.getElementById("filter-categories");
-    const cats = ["Alle", ...new Set(TEMPLATES.map(t => t.category))];
+    catGroup.innerHTML = "<label>Kategorie</label>";
+    const cats = ["Alle", ...new Set(tpls.map((t) => t.category))];
+    if (cats.indexOf(state.category) === -1) state.category = "Alle";
     for (const c of cats) {
-      const btn = el("button", {
+      catGroup.appendChild(el("button", {
         class: "pill" + (c === state.category ? " active" : ""),
         dataset: { cat: c },
         onClick: () => {
           state.category = c;
-          catGroup.querySelectorAll(".pill").forEach(p =>
+          catGroup.querySelectorAll(".pill").forEach((p) =>
             p.classList.toggle("active", p.dataset.cat === c));
           renderGallery();
         },
-      }, c);
-      catGroup.appendChild(btn);
+      }, c));
     }
 
     const sortSel = document.getElementById("sort-by");
-    sortSel.addEventListener("change", e => {
-      state.sortBy = e.target.value;
-      renderGallery();
-    });
+    sortSel.onchange = (e) => { state.sortBy = e.target.value; renderGallery(); };
   }
 
   // ============================================================
@@ -253,8 +267,9 @@
     state.detail.id = id;
     state.detail.withBg = false;
     state.detail.overlay = false;
-    document.getElementById("toggle-bg").setAttribute("aria-pressed", "false");
-    document.getElementById("toggle-bg").textContent = "Mit Hintergrund";
+    const tb = document.getElementById("toggle-bg");
+    tb.setAttribute("aria-pressed", "false");
+    tb.textContent = "Mit Hintergrund";
     document.getElementById("toggle-overlay").setAttribute("aria-pressed", "false");
     renderDetail();
     document.getElementById("detail-backdrop").classList.add("open");
@@ -266,22 +281,21 @@
   }
 
   function renderDetail() {
-    const t = TEMPLATES.find(x => x.id === state.detail.id);
+    const t = findTemplate(state.detail.id);
     if (!t) return;
     document.getElementById("detail-title").textContent = t.name;
 
-    const pixelSize = Math.min(20, Math.floor(360 / t.width));
+    const cell = Math.max(10, Math.min(26, Math.floor(440 / t.width)));
     const gridContainer = document.getElementById("detail-grid");
     gridContainer.innerHTML = "";
-    const grid = buildPixelGrid(t, {
+    const canvas = el("canvas");
+    gridContainer.appendChild(canvas);
+    BeadCanvas.drawGrid(canvas, t, {
+      cellSize: cell,
       withBg: state.detail.withBg,
-      pixelSize,
       overlay: state.detail.overlay,
-      withTooltip: true,
     });
-    grid.classList.add("detail-pixel-grid");
-    if (state.detail.overlay) grid.classList.add("with-overlay");
-    gridContainer.appendChild(grid);
+    attachTooltip(canvas, t);
 
     const counts = countBeads(t.grid, state.detail.withBg ? t.bgColor : null);
     const matWrap = document.getElementById("detail-materials");
@@ -294,100 +308,140 @@
   }
 
   function setupDetailControls() {
-    document.getElementById("toggle-bg").addEventListener("click", e => {
+    document.getElementById("toggle-bg").addEventListener("click", (e) => {
       state.detail.withBg = !state.detail.withBg;
       e.target.setAttribute("aria-pressed", String(state.detail.withBg));
       e.target.textContent = state.detail.withBg ? "Ohne Hintergrund" : "Mit Hintergrund";
       renderDetail();
     });
-    document.getElementById("toggle-overlay").addEventListener("click", e => {
+    document.getElementById("toggle-overlay").addEventListener("click", (e) => {
       state.detail.overlay = !state.detail.overlay;
       e.target.setAttribute("aria-pressed", String(state.detail.overlay));
       renderDetail();
     });
     document.getElementById("detail-print").addEventListener("click", () => {
-      if (state.detail.id) printSingle(state.detail.id, state.detail.withBg, state.detail.overlay);
+      if (state.detail.id) printTemplate(state.detail.id, state.detail.withBg, state.detail.overlay);
     });
-    document.querySelectorAll('[data-close="detail"]').forEach(b =>
+    document.getElementById("detail-edit").addEventListener("click", () => {
+      const t = findTemplate(state.detail.id);
+      if (t) { closeDetail(); Editor.open(t, refreshAll); }
+    });
+    document.querySelectorAll('[data-close="detail"]').forEach((b) =>
       b.addEventListener("click", closeDetail));
-    document.getElementById("detail-backdrop").addEventListener("click", e => {
+    document.getElementById("detail-backdrop").addEventListener("click", (e) => {
       if (e.target.id === "detail-backdrop") closeDetail();
     });
   }
 
   // ============================================================
-  // Tooltip
+  // Projekt-/Einkaufsliste
   // ============================================================
 
-  function setupTooltip() {
-    const tip = document.getElementById("tooltip");
-    document.addEventListener("mousemove", e => {
-      const target = e.target.closest("[data-tooltip]");
-      if (!target) { tip.classList.remove("visible"); return; }
-      tip.textContent = target.dataset.tooltip;
-      tip.style.left = (e.clientX + 14) + "px";
-      tip.style.top = (e.clientY + 14) + "px";
-      tip.classList.add("visible");
-    });
-    document.addEventListener("mouseout", e => {
-      if (!e.relatedTarget) tip.classList.remove("visible");
-    });
-  }
-
-  // ============================================================
-  // Gesamtliste
-  // ============================================================
-
-  function openTotal() {
+  function projectCombinedCounts() {
+    const proj = Store.getProject();
     const totals = {};
-    for (const t of TEMPLATES) {
+    for (const id of Object.keys(proj)) {
+      const t = findTemplate(id);
+      if (!t) continue;
+      const qty = proj[id];
       const counts = countBeads(t.grid);
       for (const [k, v] of Object.entries(counts)) {
-        totals[k] = (totals[k] || 0) + v;
+        totals[k] = (totals[k] || 0) + v * qty;
       }
     }
+    return totals;
+  }
+
+  function openProject() {
+    renderProject();
+    document.getElementById("project-backdrop").classList.add("open");
+  }
+  function closeProject() {
+    document.getElementById("project-backdrop").classList.remove("open");
+  }
+
+  function renderProject() {
+    const proj = Store.getProject();
+    const ids = Object.keys(proj);
+    const listWrap = document.getElementById("project-items");
+    listWrap.innerHTML = "";
+
+    if (ids.length === 0) {
+      listWrap.appendChild(el("p", { class: "empty-hint" }, "Noch keine Vorlagen ausgewählt. Über „+ Projekt“ auf den Karten hinzufügen — oder:"));
+      listWrap.appendChild(el("button", {
+        class: "btn", onClick: () => {
+          for (const t of allTemplates()) Store.setProjectQty(t.id, 1);
+          renderProject();
+        },
+      }, "Alle Vorlagen hinzufügen"));
+    } else {
+      for (const id of ids) {
+        const t = findTemplate(id);
+        if (!t) { Store.setProjectQty(id, 0); continue; }
+        const qty = proj[id];
+        listWrap.appendChild(el("div", { class: "project-item" }, [
+          el("span", { class: "project-item-name" }, t.name),
+          el("div", { class: "qty" }, [
+            el("button", { class: "pill", onClick: () => { Store.setProjectQty(id, Math.max(0, qty - 1)); renderProject(); } }, "−"),
+            el("span", { class: "qty-val" }, String(qty)),
+            el("button", { class: "pill", onClick: () => { Store.setProjectQty(id, qty + 1); renderProject(); } }, "+"),
+            el("button", { class: "btn btn-secondary", onClick: () => { Store.setProjectQty(id, 0); renderProject(); } }, "Entfernen"),
+          ]),
+        ]));
+      }
+    }
+
+    const totals = projectCombinedCounts();
     const grand = sumCounts(totals);
+    document.getElementById("project-meta").innerHTML =
+      ids.length === 0
+        ? "Leeres Projekt."
+        : `<strong>${grand} Perlen</strong> in ${Object.keys(totals).length} Farben für ${ids.length} Vorlage(n) × Menge.`;
 
-    document.getElementById("total-meta").innerHTML =
-      `Summe über alle ${TEMPLATES.length} Vorlagen (ohne Hintergrund): <strong>${grand} Perlen</strong> in ${Object.keys(totals).length} Farben.`;
-
-    const wrap = document.getElementById("total-materials");
-    wrap.innerHTML = "";
-    wrap.appendChild(buildMaterialsTable(totals, { showHex: true }));
-
-    document.getElementById("total-backdrop").classList.add("open");
+    const matWrap = document.getElementById("project-materials");
+    matWrap.innerHTML = "";
+    if (grand > 0) matWrap.appendChild(buildMaterialsTable(totals, { showHex: true }));
   }
 
-  function closeTotal() {
-    document.getElementById("total-backdrop").classList.remove("open");
-  }
-
-  function copyTotalAsText() {
-    const totals = {};
-    for (const t of TEMPLATES) {
-      const counts = countBeads(t.grid);
-      for (const [k, v] of Object.entries(counts)) {
-        totals[k] = (totals[k] || 0) + v;
-      }
-    }
-    const lines = ["Artkal A Mini — Gesamt-Materialliste", "=".repeat(40)];
+  function projectAsText() {
+    const totals = projectCombinedCounts();
+    const lines = ["Artkal A Mini — Projekt-Materialliste", "=".repeat(40)];
     const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
     for (const [code, n] of sorted) {
       const p = paletteEntry(code);
-      lines.push(`${code.padEnd(8)} ${p.name.padEnd(14)} ${String(n).padStart(5)} Perlen`);
+      lines.push(`${code.padEnd(8)} ${p.name.padEnd(14)} ${String(n).padStart(6)} Perlen`);
     }
     lines.push("-".repeat(40));
     lines.push(`Gesamt: ${sumCounts(totals)} Perlen`);
-    const text = lines.join("\n");
+    return lines.join("\n");
+  }
 
+  function copyProjectText() {
+    const text = projectAsText();
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(
-        () => flashButton("total-copy", "Kopiert!"),
+        () => flashButton("project-copy", "Kopiert!"),
         () => fallbackCopy(text)
       );
     } else {
       fallbackCopy(text);
     }
+  }
+
+  function downloadProjectCsv() {
+    const totals = projectCombinedCounts();
+    const rows = [["Artikel-Nr", "Name", "Hex", "Anzahl"]];
+    Object.entries(totals).sort((a, b) => b[1] - a[1]).forEach(([code, n]) => {
+      const p = paletteEntry(code);
+      rows.push([code, p.name, p.hex, String(n)]);
+    });
+    const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "artkal-projekt.csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
   }
 
   function fallbackCopy(text) {
@@ -397,7 +451,7 @@
     ta.style.opacity = "0";
     document.body.appendChild(ta);
     ta.select();
-    try { document.execCommand("copy"); flashButton("total-copy", "Kopiert!"); }
+    try { document.execCommand("copy"); flashButton("project-copy", "Kopiert!"); }
     catch (e) { alert("Konnte nicht kopieren. Text in der Konsole."); console.log(text); }
     document.body.removeChild(ta);
   }
@@ -413,13 +467,49 @@
   // Druck
   // ============================================================
 
-  function printSingle(id, withBg = false, overlay = true) {
-    const t = TEMPLATES.find(x => x.id === id);
+  // Komponiert ein Druck-Canvas mit nummerierten Achsen + Perlen-Gitter.
+  function composePrintCanvas(t, withBg, overlay) {
+    const cell = 16;
+    const pad = 26;
+    const cssW = pad + t.width * cell;
+    const cssH = pad + t.height * cell;
+    const dpr = 2; // feste hohe Auflösung für den Druck
+    const canvas = document.createElement("canvas");
+    canvas.width = cssW * dpr;
+    canvas.height = cssH * dpr;
+    canvas.style.width = cssW + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, cssW, cssH);
+
+    // Perlen-Gitter separat rendern und einsetzen.
+    // Quellmaße = Backing-Store des Gitters (berücksichtigt devicePixelRatio).
+    const beads = BeadCanvas.toCanvas(t, { cellSize: cell, withBg, overlay, board: "#ffffff" });
+    ctx.drawImage(beads, 0, 0, beads.width, beads.height, pad, pad, t.width * cell, t.height * cell);
+
+    // Achsenbeschriftung.
+    ctx.fillStyle = "#000";
+    ctx.font = "9px monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    for (let x = 0; x < t.width; x++) {
+      if ((x + 1) % 5 === 0 || x === 0) ctx.fillText(String(x + 1), pad + x * cell + cell / 2, pad / 2);
+    }
+    ctx.textAlign = "right";
+    for (let y = 0; y < t.height; y++) {
+      if ((y + 1) % 5 === 0 || y === 0) ctx.fillText(String(y + 1), pad - 4, pad + y * cell + cell / 2);
+    }
+    return canvas;
+  }
+
+  function printTemplate(idOrTpl, withBg = false, overlay = true) {
+    const t = typeof idOrTpl === "string" ? findTemplate(idOrTpl) : idOrTpl;
     if (!t) return;
     const printView = document.getElementById("print-view");
     printView.innerHTML = "";
     printView.appendChild(buildPrintPage(t, withBg, overlay));
-    setTimeout(() => window.print(), 50);
+    setTimeout(() => window.print(), 60);
   }
 
   function buildPrintPage(t, withBg, overlay) {
@@ -432,45 +522,11 @@
       (withBg ? ` (mit Hintergrund ${t.bgColor})` : "") +
       ` · ${new Date().toLocaleDateString("de-DE")}`));
 
-    // Grid mit Achsen-Labels
-    const wrap = el("div", { class: "print-grid-wrap" });
-    wrap.style.gridTemplateColumns = `14mm 1fr`;
-    wrap.style.gridTemplateRows = `14mm 1fr`;
+    const imgCanvas = composePrintCanvas(t, withBg, overlay);
+    imgCanvas.className = "print-bead-canvas";
+    page.appendChild(el("div", { class: "print-grid-wrap" }, imgCanvas));
 
-    const colLabels = el("div", { class: "print-col-labels" });
-    colLabels.style.gridTemplateColumns = `repeat(${t.width}, 1fr)`;
-    for (let x = 0; x < t.width; x++) {
-      colLabels.appendChild(el("div", null, ((x + 1) % 5 === 0 || x === 0) ? String(x + 1) : ""));
-    }
-    wrap.appendChild(colLabels);
-
-    const rowLabels = el("div", { class: "print-row-labels" });
-    rowLabels.style.gridTemplateRows = `repeat(${t.height}, 1fr)`;
-    for (let y = 0; y < t.height; y++) {
-      rowLabels.appendChild(el("div", null, ((y + 1) % 5 === 0 || y === 0) ? String(y + 1) : ""));
-    }
-    wrap.appendChild(rowLabels);
-
-    const grid = el("div", { class: "print-grid" + (overlay ? " with-marks" : "") });
-    grid.style.gridTemplateColumns = `repeat(${t.width}, 1fr)`;
-    for (let y = 0; y < t.height; y++) {
-      for (let x = 0; x < t.width; x++) {
-        let code = t.grid[y][x];
-        const isEmpty = code == null;
-        if (isEmpty && withBg) code = t.bgColor;
-        const pixel = el("div", { class: "pixel" + (code == null ? " empty-bg" : "") });
-        if (code != null) pixel.style.background = paletteEntry(code).hex;
-        if (overlay) {
-          if ((x + 1) % 5 === 0 && x < t.width - 1) pixel.classList.add("gridmark-x");
-          if ((y + 1) % 5 === 0 && y < t.height - 1) pixel.classList.add("gridmark-y");
-        }
-        grid.appendChild(pixel);
-      }
-    }
-    wrap.appendChild(grid);
-    page.appendChild(wrap);
-
-    // Materialliste
+    // Materialliste.
     const table = el("table", { class: "print-materials" });
     const head = el("thead", null, el("tr", null, [
       el("th", null, "Farbe"),
@@ -493,11 +549,8 @@
       el("td", { colspan: "3" }, "Gesamt"),
       el("td", { style: { textAlign: "right" } }, String(sumCounts(counts))),
     ]));
-    table.appendChild(head);
-    table.appendChild(body);
-    table.appendChild(foot);
+    table.appendChild(head); table.appendChild(body); table.appendChild(foot);
     page.appendChild(table);
-
     return page;
   }
 
@@ -505,22 +558,52 @@
   // Init
   // ============================================================
 
+  function refreshAll() {
+    setupToolbar();
+    renderGallery();
+  }
+
   function init() {
     setupToolbar();
     setupDetailControls();
-    setupTooltip();
-    document.getElementById("open-total").addEventListener("click", openTotal);
-    document.getElementById("total-copy").addEventListener("click", copyTotalAsText);
-    document.querySelectorAll('[data-close="total"]').forEach(b =>
-      b.addEventListener("click", closeTotal));
-    document.getElementById("total-backdrop").addEventListener("click", e => {
-      if (e.target.id === "total-backdrop") closeTotal();
+
+    document.getElementById("filter-fav").addEventListener("click", (e) => {
+      state.favOnly = !state.favOnly;
+      e.currentTarget.classList.toggle("active", state.favOnly);
+      e.currentTarget.setAttribute("aria-pressed", String(state.favOnly));
+      renderGallery();
     });
-    document.addEventListener("keydown", e => {
-      if (e.key === "Escape") { closeDetail(); closeTotal(); }
+
+    document.getElementById("open-editor").addEventListener("click", () => Editor.open(null, refreshAll));
+    document.getElementById("open-converter").addEventListener("click", () => Converter.open(refreshAll));
+    document.getElementById("open-project").addEventListener("click", openProject);
+
+    document.getElementById("project-copy").addEventListener("click", copyProjectText);
+    document.getElementById("project-csv").addEventListener("click", downloadProjectCsv);
+    document.getElementById("project-clear").addEventListener("click", () => {
+      if (confirm("Projektliste leeren?")) { Store.clearProject(); renderProject(); renderGallery(); }
     });
+    document.querySelectorAll('[data-close="project"]').forEach((b) =>
+      b.addEventListener("click", closeProject));
+    document.getElementById("project-backdrop").addEventListener("click", (e) => {
+      if (e.target.id === "project-backdrop") closeProject();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeDetail(); closeProject();
+        Editor.close(); Converter.close();
+      }
+    });
+
     renderGallery();
   }
+
+  // Globale Helfer für editor.js / converter.js.
+  window.countBeads = countBeads;
+  window.sumCounts = sumCounts;
+  window.buildMaterialsTable = buildMaterialsTable;
+  window.printTemplate = printTemplate;
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);

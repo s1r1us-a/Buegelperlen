@@ -6,26 +6,58 @@
 //   rows:     Array von Strings; jedes Zeichen entspricht einer Perle.
 //             '.' = leer (transparent), sonst ein Buchstabe aus COLOR_KEY.
 //
-// Sprites sind originalgetreu an die NES Super-Mario-Bros (1985)-Sprites angelehnt.
-// Bei großflächigen Sprites (Großer/Feuer-Mario, Koopa) können einzelne Pixel minimal
-// vom Original abweichen — pixelgenaue Referenzen lassen sich aus den Grids beim
-// Stecken nachjustieren.
+// Pixel-Sprites sind originalgetreu an die jeweiligen Vorlagen angelehnt; bei
+// großflächigen Motiven können einzelne Pixel minimal abweichen — beim Stecken
+// lassen sie sich aus den Grids nachjustieren.
 
 const COLOR_KEY = {
   ".": null,
+  // Neutral / Grau
   "K": "A-100", // Schwarz
+  "D": "A-104", // Dunkelgrau
+  "c": "A-103", // Grau
+  "C": "A-102", // Hellgrau
   "W": "A-001", // Weiß
+  "E": "A-101", // Creme
+  // Rot / Orange
+  "r": "A-005", // Dunkelrot
   "R": "A-006", // Rot
+  "F": "A-026", // Koralle
   "O": "A-007", // Orange
+  "o": "A-008", // Hellorange
+  // Gelb
   "Y": "A-003", // Gelb
-  "B": "A-019", // Dunkelblau (Mario-Overalls)
-  "L": "A-029", // Hellblau (Himmel)
+  "y": "A-004", // Hellgelb
+  "u": "A-009", // Senf
+  // Grün
   "G": "A-020", // Dunkelgrün
   "g": "A-021", // Hellgrün
-  "N": "A-014", // Braun (Stiefel/Haar)
-  "S": "A-024", // Hautton
+  "i": "A-022", // Limette
+  "M": "A-023", // Tannengrün
+  "m": "A-027", // Mint
+  // Blau / Türkis
+  "t": "A-028", // Türkis
+  "T": "A-032", // Petrol
+  "B": "A-019", // Dunkelblau
+  "L": "A-029", // Hellblau
+  "b": "A-030", // Himmelblau
+  "d": "A-031", // Marineblau
+  // Violett / Pink
+  "v": "A-033", // Violett
+  "l": "A-034", // Lavendel
   "P": "A-025", // Pink
+  "p": "A-035", // Magenta
+  "f": "A-036", // Fuchsia
+  // Braun / Haut
+  "N": "A-014", // Braun
   "n": "A-013", // Hellbraun
+  "h": "A-015", // Dunkelbraun
+  "S": "A-024", // Hautton
+  "s": "A-037", // Hautton 2
+  "e": "A-038", // Beige
+  // Spezial
+  "x": "A-039", // Gold
+  "z": "A-040", // Silber
 };
 
 function parseRows(rows) {
@@ -40,7 +72,10 @@ function parseRows(rows) {
   });
 }
 
-// --- 1. Kleiner Mario (12×16) ---
+// ============================================================
+// Super Mario
+// ============================================================
+
 const SMALL_MARIO = [
   "...RRRRR....",
   "..RRRRRRRRR.",
@@ -60,7 +95,6 @@ const SMALL_MARIO = [
   "NNNN....NNNN",
 ];
 
-// --- 2. Großer Mario (16×32) ---
 const BIG_MARIO = [
   ".....RRRRRRR....",
   "....RRRRRRRRR...",
@@ -96,14 +130,10 @@ const BIG_MARIO = [
   "NNNNN......NNNNN",
 ];
 
-// --- 3. Feuer-Mario (16×32) ---
-// Identische Silhouette wie Großer Mario, aber Fire-Mario-Palette:
-//   Rot (R) der Kappe → Weiß, Dunkelblau (B) der Overalls → Rot.
 const FIRE_MARIO = BIG_MARIO.map(row =>
   [...row].map(ch => (ch === "R" ? "W" : ch === "B" ? "R" : ch)).join("")
 );
 
-// --- 4. Goomba (16×16) ---
 const GOOMBA = [
   "....NNNNNNNN....",
   "..NNNNNNNNNNNN..",
@@ -123,7 +153,6 @@ const GOOMBA = [
   "NNNN........NNNN",
 ];
 
-// --- 5. Grüner Koopa Troopa (16×24) ---
 const KOOPA = [
   "....GGGGGGGG....",
   "...GGGGGGGGGG...",
@@ -151,7 +180,6 @@ const KOOPA = [
   ".nnnn......nnnn.",
 ];
 
-// --- 6. Super-Pilz (16×16) ---
 const SUPER_MUSHROOM = [
   "....KKKKKKKK....",
   "..KKRRRRRRRRKK..",
@@ -171,13 +199,10 @@ const SUPER_MUSHROOM = [
   "................",
 ];
 
-// --- 7. 1-Up-Pilz (16×16) ---
-// Wie Super-Pilz, aber grüner Hut: R → G.
 const ONE_UP_MUSHROOM = SUPER_MUSHROOM.map(row =>
   [...row].map(ch => (ch === "R" ? "G" : ch)).join("")
 );
 
-// --- 8. Feuerblume (16×16) ---
 const FIRE_FLOWER = [
   "....KKKKKKKK....",
   "..KKWWWWWWWWKK..",
@@ -197,7 +222,6 @@ const FIRE_FLOWER = [
   "...gggGGGGggg...",
 ];
 
-// --- 9. Fragezeichen-Block (16×16) ---
 const QUESTION_BLOCK = [
   "KKKKKKKKKKKKKKKK",
   "KOOOOOOOOOOOOOOK",
@@ -217,7 +241,6 @@ const QUESTION_BLOCK = [
   "KKKKKKKKKKKKKKKK",
 ];
 
-// --- 10. Münze (12×16) ---
 const COIN = [
   "....OOOO....",
   "..OOYYYYOO..",
@@ -237,105 +260,282 @@ const COIN = [
   "....OOOO....",
 ];
 
+const PIPE = [
+  "GGGGGGGGGGGGGGGG",
+  "GggggggggggggggG",
+  "GggGGGGGGGGGGggG",
+  "GggGGGGGGGGGGggG",
+  "GGGGGGGGGGGGGGGG",
+  "..GGGGGGGGGGGG..",
+  "..GggggggggggG..",
+  "..GggGGGGGGggG..",
+  "..GggGGGGGGggG..",
+  "..GggGGGGGGggG..",
+  "..GggGGGGGGggG..",
+  "..GggGGGGGGggG..",
+  "..GggGGGGGGggG..",
+  "..GggGGGGGGggG..",
+  "..GggGGGGGGggG..",
+  "..GGGGGGGGGGGG..",
+];
+
+const STAR = [
+  ".......YY.......",
+  ".......YY.......",
+  "......YYYY......",
+  "......YYYY......",
+  "YYYYYYYYYYYYYYYY",
+  ".YYYYYYYYYYYYYY.",
+  "..YYYYYYYYYYYY..",
+  "...YYYYYYYYYY...",
+  "...YYYYYYYYYY...",
+  "..YYYYYYYYYYYY..",
+  "..YYYY....YYYY..",
+  ".YYYY......YYYY.",
+  "YYY..........YYY",
+];
+
+// ============================================================
+// Symbole
+// ============================================================
+
+const HEART = [
+  "..RRR......RRR..",
+  ".RRRRR....RRRRR.",
+  ".RRRRRR..RRRRRR.",
+  "RRRRRRRRRRRRRRRR",
+  "RRRRRRRRRRRRRRRR",
+  ".RRRRRRRRRRRRRR.",
+  "..RRRRRRRRRRRR..",
+  "...RRRRRRRRRR...",
+  "....RRRRRRRR....",
+  ".....RRRRRR.....",
+  "......RRRR......",
+  ".......RR.......",
+];
+
+const SMILEY = [
+  ".....KKKKKK.....",
+  "...KKYYYYYYKK...",
+  "..KYYYYYYYYYYK..",
+  ".KYYYYYYYYYYYYK.",
+  "KYYYYYYYYYYYYYYK",
+  "KYYYKKYYYYKKYYYK",
+  "KYYYKKYYYYKKYYYK",
+  "KYYYYYYYYYYYYYYK",
+  "KYYYYYYYYYYYYYYK",
+  "KYYYKYYYYYYKYYYK",
+  "KYYYKYYYYYYKYYYK",
+  "KYYYYKKKKKKYYYYK",
+  ".KYYYYYYYYYYYYK.",
+  "..KYYYYYYYYYYK..",
+  "...KKYYYYYYKK...",
+  ".....KKKKKK.....",
+];
+
+// ============================================================
+// Minecraft
+// ============================================================
+
+const CREEPER = [
+  "gggggggggggggggg",
+  "gggggggggggggggg",
+  "gggggggggggggggg",
+  "ggKKKKggggKKKKgg",
+  "ggKKKKggggKKKKgg",
+  "ggKKKKggggKKKKgg",
+  "ggKKKKggggKKKKgg",
+  "ggggggKKKKgggggg",
+  "ggggggKKKKgggggg",
+  "gggggKKKKKKggggg",
+  "gggggKKKKKKggggg",
+  "gggggKKggKKggggg",
+  "gggggKKggKKggggg",
+  "gggggKKggKKggggg",
+  "gggggggggggggggg",
+  "gggggggggggggggg",
+];
+
+// ============================================================
+// Pac-Man
+// ============================================================
+
+const PACMAN = [
+  ".....YYYYYY.....",
+  "...YYYYYYYYYY...",
+  "..YYYYYYYYYYYY..",
+  ".YYYYYYYYYYYYYY.",
+  ".YYYYYYYYY......",
+  "YYYYYYYY........",
+  "YYYYYYY.........",
+  "YYYYYY..........",
+  "YYYYYY..........",
+  "YYYYYYY.........",
+  "YYYYYYYY........",
+  ".YYYYYYYYY......",
+  ".YYYYYYYYYYYYYY.",
+  "..YYYYYYYYYYYY..",
+  "...YYYYYYYYYY...",
+  ".....YYYYYY.....",
+];
+
+const GHOST = [
+  ".....RRRRRR.....",
+  "...RRRRRRRRRR...",
+  "..RRRRRRRRRRRR..",
+  ".RRRRRRRRRRRRRR.",
+  "RRRRRRRRRRRRRRRR",
+  "RRWWWRRRRRRWWWRR",
+  "RRWBWRRRRRRWBWRR",
+  "RRWWWRRRRRRWWWRR",
+  "RRRRRRRRRRRRRRRR",
+  "RRRRRRRRRRRRRRRR",
+  "RRRRRRRRRRRRRRRR",
+  "RRRRRRRRRRRRRRRR",
+  "RRRRRRRRRRRRRRRR",
+  "RRRRRRRRRRRRRRRR",
+  "RRRRRRRRRRRRRRRR",
+  "R..RR..RR..RR..R",
+];
+
+// ============================================================
+// Pokémon
+// ============================================================
+
+const POKEBALL = [
+  ".....KKKKKK.....",
+  "...KKRRRRRRKK...",
+  "..KRRRRRRRRRRK..",
+  ".KRRRRRRRRRRRRK.",
+  ".KRRRRRRRRRRRRK.",
+  "KRRRRRRRRRRRRRRK",
+  "KRRRRRRRRRRRRRRK",
+  "KKKKKKKKKKKKKKKK",
+  "WWWWWKKKKKKWWWWW",
+  "WWWWWKWWWWKWWWWW",
+  "WWWWWKKKKKKWWWWW",
+  ".WWWWWWWWWWWWWW.",
+  ".KWWWWWWWWWWWWK.",
+  "..KWWWWWWWWWWK..",
+  "...KKWWWWWWKK...",
+  ".....KKKKKK.....",
+];
+
+// ============================================================
+// Among Us
+// ============================================================
+
+const CREWMATE = [
+  "...RRRRRR...",
+  "..RRRRRRRR..",
+  ".RRRRRRRRRR.",
+  "RRRRRRRRRRRR",
+  "RRRbbbbbbRRR",
+  "RRRbbbbbbRRR",
+  "RRRRRRRRRRRR",
+  "RRRRRRRRRRRR",
+  "RRRRRRRRRRRR",
+  "RRRRRRRRRRRR",
+  "RRRRRRRRRRRR",
+  "RRRRRRRRRRRR",
+  "RRRRRRRRRRRR",
+  "RRRR....RRRR",
+  "RRRR....RRRR",
+];
+
+// ============================================================
+// Sonic
+// ============================================================
+
+const RING = [
+  ".....xxxxxx.....",
+  "...xxxxxxxxxx...",
+  "..xxxxxxxxxxxx..",
+  ".xxxxx....xxxxx.",
+  ".xxxx......xxxx.",
+  "xxxx........xxxx",
+  "xxxx........xxxx",
+  "xxx..........xxx",
+  "xxx..........xxx",
+  "xxxx........xxxx",
+  "xxxx........xxxx",
+  ".xxxx......xxxx.",
+  ".xxxxx....xxxxx.",
+  "..xxxxxxxxxxxx..",
+  "...xxxxxxxxxx...",
+  ".....xxxxxx.....",
+];
+
+// ============================================================
+// Zelda
+// ============================================================
+
+const EMERALD = [
+  ".......gg.......",
+  "......gggg......",
+  ".....gggggg.....",
+  "....gggggggg....",
+  "...gggggggggg...",
+  "..gggggggggggg..",
+  ".gggggggggggggg.",
+  "gggggggggggggggg",
+  "gggggggggggggggg",
+  ".gggggggggggggg.",
+  "..gggggggggggg..",
+  "...gggggggggg...",
+  "....gggggggg....",
+  ".....gggggg.....",
+  "......gggg......",
+  ".......gg.......",
+];
+
+const SWORD = [
+  ".......zz.......",
+  ".......zz.......",
+  "......zzzz......",
+  "......zzzz......",
+  "......zzzz......",
+  "......zzzz......",
+  "......zzzz......",
+  "......zzzz......",
+  "......zzzz......",
+  "....xxxxxxxx....",
+  ".......NN.......",
+  ".......NN.......",
+  ".......NN.......",
+  "......xxxx......",
+  ".......xx.......",
+  "................",
+];
+
 const TEMPLATES = [
-  {
-    id: "mario-klein",
-    name: "Kleiner Mario",
-    game: "Super Mario",
-    category: "Charakter",
-    width: 12,
-    height: 16,
-    bgColor: "A-029",
-    grid: parseRows(SMALL_MARIO),
-  },
-  {
-    id: "mario-gross",
-    name: "Großer Mario",
-    game: "Super Mario",
-    category: "Charakter",
-    width: 16,
-    height: 32,
-    bgColor: "A-029",
-    grid: parseRows(BIG_MARIO),
-  },
-  {
-    id: "mario-feuer",
-    name: "Feuer-Mario",
-    game: "Super Mario",
-    category: "Charakter",
-    width: 16,
-    height: 32,
-    bgColor: "A-029",
-    grid: parseRows(FIRE_MARIO),
-  },
-  {
-    id: "goomba",
-    name: "Goomba",
-    game: "Super Mario",
-    category: "Gegner",
-    width: 16,
-    height: 16,
-    bgColor: "A-029",
-    grid: parseRows(GOOMBA),
-  },
-  {
-    id: "koopa-gruen",
-    name: "Grüner Koopa Troopa",
-    game: "Super Mario",
-    category: "Gegner",
-    width: 16,
-    height: 24,
-    bgColor: "A-029",
-    grid: parseRows(KOOPA),
-  },
-  {
-    id: "super-pilz",
-    name: "Super-Pilz",
-    game: "Super Mario",
-    category: "Item",
-    width: 16,
-    height: 16,
-    bgColor: "A-029",
-    grid: parseRows(SUPER_MUSHROOM),
-  },
-  {
-    id: "1up-pilz",
-    name: "1-Up-Pilz",
-    game: "Super Mario",
-    category: "Item",
-    width: 16,
-    height: 16,
-    bgColor: "A-029",
-    grid: parseRows(ONE_UP_MUSHROOM),
-  },
-  {
-    id: "feuerblume",
-    name: "Feuerblume",
-    game: "Super Mario",
-    category: "Item",
-    width: 16,
-    height: 16,
-    bgColor: "A-029",
-    grid: parseRows(FIRE_FLOWER),
-  },
-  {
-    id: "frageblock",
-    name: "Fragezeichen-Block",
-    game: "Super Mario",
-    category: "Block",
-    width: 16,
-    height: 16,
-    bgColor: "A-029",
-    grid: parseRows(QUESTION_BLOCK),
-  },
-  {
-    id: "muenze",
-    name: "Münze",
-    game: "Super Mario",
-    category: "Item",
-    width: 12,
-    height: 16,
-    bgColor: "A-029",
-    grid: parseRows(COIN),
-  },
+  { id: "mario-klein", name: "Kleiner Mario", game: "Super Mario", category: "Charakter", width: 12, height: 16, bgColor: "A-029", grid: parseRows(SMALL_MARIO) },
+  { id: "mario-gross", name: "Großer Mario", game: "Super Mario", category: "Charakter", width: 16, height: 32, bgColor: "A-029", grid: parseRows(BIG_MARIO) },
+  { id: "mario-feuer", name: "Feuer-Mario", game: "Super Mario", category: "Charakter", width: 16, height: 32, bgColor: "A-029", grid: parseRows(FIRE_MARIO) },
+  { id: "goomba", name: "Goomba", game: "Super Mario", category: "Gegner", width: 16, height: 16, bgColor: "A-029", grid: parseRows(GOOMBA) },
+  { id: "koopa-gruen", name: "Grüner Koopa Troopa", game: "Super Mario", category: "Gegner", width: 16, height: 24, bgColor: "A-029", grid: parseRows(KOOPA) },
+  { id: "super-pilz", name: "Super-Pilz", game: "Super Mario", category: "Item", width: 16, height: 16, bgColor: "A-029", grid: parseRows(SUPER_MUSHROOM) },
+  { id: "1up-pilz", name: "1-Up-Pilz", game: "Super Mario", category: "Item", width: 16, height: 16, bgColor: "A-029", grid: parseRows(ONE_UP_MUSHROOM) },
+  { id: "feuerblume", name: "Feuerblume", game: "Super Mario", category: "Item", width: 16, height: 16, bgColor: "A-029", grid: parseRows(FIRE_FLOWER) },
+  { id: "frageblock", name: "Fragezeichen-Block", game: "Super Mario", category: "Block", width: 16, height: 16, bgColor: "A-029", grid: parseRows(QUESTION_BLOCK) },
+  { id: "muenze", name: "Münze", game: "Super Mario", category: "Item", width: 12, height: 16, bgColor: "A-029", grid: parseRows(COIN) },
+  { id: "roehre", name: "Röhre", game: "Super Mario", category: "Umgebung", width: 16, height: 16, bgColor: "A-029", grid: parseRows(PIPE) },
+  { id: "stern", name: "Super-Stern", game: "Super Mario", category: "Item", width: 16, height: 13, bgColor: "A-029", grid: parseRows(STAR) },
+
+  { id: "herz", name: "Herz", game: "Symbole", category: "Symbol", width: 16, height: 12, bgColor: "A-001", grid: parseRows(HEART) },
+  { id: "smiley", name: "Smiley", game: "Symbole", category: "Symbol", width: 16, height: 16, bgColor: "A-001", grid: parseRows(SMILEY) },
+
+  { id: "creeper", name: "Creeper", game: "Minecraft", category: "Charakter", width: 16, height: 16, bgColor: "A-021", grid: parseRows(CREEPER) },
+
+  { id: "pacman", name: "Pac-Man", game: "Pac-Man", category: "Charakter", width: 16, height: 16, bgColor: "A-100", grid: parseRows(PACMAN) },
+  { id: "geist", name: "Geist", game: "Pac-Man", category: "Gegner", width: 16, height: 16, bgColor: "A-100", grid: parseRows(GHOST) },
+
+  { id: "pokeball", name: "Pokéball", game: "Pokémon", category: "Item", width: 16, height: 16, bgColor: "A-001", grid: parseRows(POKEBALL) },
+
+  { id: "crewmate", name: "Crewmate", game: "Among Us", category: "Charakter", width: 12, height: 15, bgColor: "A-104", grid: parseRows(CREWMATE) },
+
+  { id: "ring", name: "Ring", game: "Sonic", category: "Item", width: 16, height: 16, bgColor: "A-019", grid: parseRows(RING) },
+
+  { id: "smaragd", name: "Smaragd", game: "Zelda", category: "Item", width: 16, height: 16, bgColor: "A-001", grid: parseRows(EMERALD) },
+  { id: "schwert", name: "Schwert", game: "Zelda", category: "Item", width: 16, height: 16, bgColor: "A-001", grid: parseRows(SWORD) },
 ];
