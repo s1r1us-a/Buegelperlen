@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AP1 Lernkarten – Fachinformatiker Anwendungsentwicklung</title>
+<style>
+  :root {
+    --bg: #F3F5F2;
+    --surface: #FFFFFF;
+    --surface-2: #E9EDE8;
+    --ink: #182428;
+    --ink-soft: #51625F;
+    --line: #D5DCD5;
+    --accent: #0E7466;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #DDEEEA;
+    --marker: #FFD84D;
+    --marker-ink: #4A3A00;
+    --good: #2E8F55;
+    --good-soft: #DFF0E4;
+    --bad: #C74A44;
+    --bad-soft: #F6E3E1;
+    --shadow: 0 10px 30px rgba(24, 36, 40, 0.10), 0 2px 6px rgba(24, 36, 40, 0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121A1C;
+      --surface: #1B2528;
+      --surface-2: #223035;
+      --ink: #E4ECEA;
+      --ink-soft: #93A5A1;
+      --line: #2E3D41;
+      --accent: #35B3A0;
+      --accent-ink: #0B1A18;
+      --accent-soft: #1C3B37;
+      --marker: #E8C43D;
+      --marker-ink: #2E2400;
+      --good: #4CBB77;
+      --good-soft: #1E362A;
+      --bad: #E0716B;
+      --bad-soft: #402624;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #F3F5F2;
+    --surface: #FFFFFF;
+    --surface-2: #E9EDE8;
+    --ink: #182428;
+    --ink-soft: #51625F;
+    --line: #D5DCD5;
+    --accent: #0E7466;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #DDEEEA;
+    --marker: #FFD84D;
+    --marker-ink: #4A3A00;
+    --good: #2E8F55;
+    --good-soft: #DFF0E4;
+    --bad: #C74A44;
+    --bad-soft: #F6E3E1;
+    --shadow: 0 10px 30px rgba(24, 36, 40, 0.10), 0 2px 6px rgba(24, 36, 40, 0.06);
+  }
+  :root[data-theme="dark"] {
+    --bg: #121A1C;
+    --surface: #1B2528;
+    --surface-2: #223035;
+    --ink: #E4ECEA;
+    --ink-soft: #93A5A1;
+    --line: #2E3D41;
+    --accent: #35B3A0;
+    --accent-ink: #0B1A18;
+    --accent-soft: #1C3B37;
+    --marker: #E8C43D;
+    --marker-ink: #2E2400;
+    --good: #4CBB77;
+    --good-soft: #1E362A;
+    --bad: #E0716B;
+    --bad-soft: #402624;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; }
+  body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; background: none; border: none; }
+  button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+  .shell { max-width: 980px; margin: 0 auto; padding: 20px 20px 64px; }
+
+  /* ---------- Header ---------- */
+  header.top {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 6px 0 22px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .brand .stamp {
+    flex: none; width: 44px; height: 44px; border-radius: 10px;
+    background: var(--accent); color: var(--accent-ink);
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 15px; letter-spacing: 0.02em;
+    transform: rotate(-4deg);
+  }
+  .brand h1 { font-size: 18px; font-weight: 750; letter-spacing: -0.01em; line-height: 1.25; }
+  .brand .sub { font-size: 12.5px; color: var(--ink-soft); }
+  .top-actions { display: flex; gap: 8px; flex: none; }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--surface);
+    display: grid; place-items: center; font-size: 17px;
+    transition: background 0.15s ease;
+  }
+  .icon-btn:hover { background: var(--surface-2); }
+
+  /* ---------- Overview ---------- */
+  .hero {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+    padding: 26px 26px 24px; box-shadow: var(--shadow); margin-bottom: 22px;
+  }
+  .eyebrow {
+    display: inline-block; font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--marker-ink);
+    background: var(--marker); padding: 3px 10px; border-radius: 4px;
+    transform: rotate(-1deg); margin-bottom: 12px;
+  }
+  .hero h2 { font-size: clamp(22px, 4vw, 30px); font-weight: 800; letter-spacing: -0.02em; text-wrap: balance; margin-bottom: 8px; }
+  .hero p { color: var(--ink-soft); max-width: 62ch; font-size: 15px; }
+  .hero .facts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .fact {
+    font-size: 12.5px; font-weight: 600; color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px;
+    background: var(--bg);
+  }
+  .fact strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  .total-progress { margin: 20px 0 4px; }
+  .total-progress .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+  .total-progress .label { font-size: 13px; font-weight: 650; }
+  .total-progress .nums { font-size: 12.5px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .bar { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; display: flex; }
+  .bar .seg-good { background: var(--good); height: 100%; transition: width 0.3s ease; }
+  .bar .seg-bad { background: var(--bad); height: 100%; transition: width 0.3s ease; }
+
+  .hero-cta {
+    margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    border-radius: 10px; padding: 10px 18px; font-weight: 650; font-size: 14.5px;
+    border: 1px solid var(--line); background: var(--surface);
+    transition: transform 0.1s ease, background 0.15s ease;
+  }
+  .btn:hover { background: var(--surface-2); }
+  .btn:active { transform: scale(0.97); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .btn.primary:hover { filter: brightness(1.08); background: var(--accent); }
+  .btn.danger-ghost { color: var(--bad); }
+  .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;
+  }
+  .cat-card {
+    text-align: left; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+  }
+  .cat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--accent); }
+  .cat-card .head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .cat-card h3 { font-size: 15.5px; font-weight: 700; letter-spacing: -0.01em; }
+  .cat-card .count { font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; flex: none; }
+  .cat-card .topics { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+  .section-title { font-size: 13px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-soft); margin: 26px 0 12px; }
+
+  /* ---------- Study view ---------- */
+  .study { display: none; }
+  .study.active { display: block; }
+  .overview.hidden { display: none; }
+
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 12px; scrollbar-width: thin; }
+  .chip {
+    flex: none; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .chip:hover { background: var(--surface-2); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  .study-status {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    margin: 6px 0 10px; font-size: 13px; color: var(--ink-soft);
+  }
+  .study-status .counter { font-variant-numeric: tabular-nums; font-weight: 650; color: var(--ink); }
+  .study-status .bar { flex: 1; max-width: 340px; }
+
+  .flip-zone { perspective: 1600px; margin-top: 6px; }
+  .flashcard {
+    position: relative; width: 100%; min-height: 380px;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.3, 0.9, 0.3, 1);
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 28px 30px; display: flex; flex-direction: column;
+  }
+  .face.back { transform: rotateY(180deg); }
+  .face .tag-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .face .cat-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent); background: var(--accent-soft); padding: 4px 10px; border-radius: 5px;
+  }
+  .face .side-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+  .face.back .side-tag { color: var(--marker-ink); background: var(--marker); padding: 4px 10px; border-radius: 5px; }
+  .face .content { flex: 1; display: flex; align-items: center; overflow-y: auto; }
+  .face.front .content .text {
+    font-size: clamp(18px, 2.6vw, 23px); font-weight: 700; letter-spacing: -0.015em;
+    line-height: 1.4; text-wrap: balance; max-width: 30em;
+  }
+  .face.back .content .text {
+    font-size: clamp(14.5px, 2vw, 16.5px); white-space: pre-line; max-width: 70ch;
+    align-self: flex-start; padding-top: 2px;
+  }
+  .face .hint { font-size: 12px; color: var(--ink-soft); margin-top: 16px; }
+  .state-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; display: inline-block; margin-right: 6px; vertical-align: baseline; }
+  .state-dot.known { background: var(--good); }
+  .state-dot.unknown { background: var(--bad); }
+  .state-dot.fresh { background: var(--line); }
+
+  .controls { display: flex; justify-content: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .rate { display: none; justify-content: center; gap: 10px; margin-top: 14px; }
+  .rate.visible { display: flex; }
+  .btn.good { background: var(--good-soft); border-color: var(--good); color: var(--good); }
+  .btn.bad { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+  .btn.good:hover, .btn.bad:hover { filter: brightness(1.05); }
+
+  .toolbar { display: flex; justify-content: center; gap: 8px; margin-top: 22px; flex-wrap: wrap; }
+  .toolbar .btn { font-size: 13px; padding: 8px 14px; }
+  .toolbar .btn.toggled { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+  .empty {
+    text-align: center; padding: 60px 20px; color: var(--ink-soft);
+    background: var(--surface); border: 1px dashed var(--line); border-radius: 18px;
+  }
+  .empty .big { font-size: 40px; margin-bottom: 10px; }
+
+  .kbd-help { text-align: center; font-size: 12px; color: var(--ink-soft); margin-top: 20px; }
+  kbd {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px;
+    border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px;
+    padding: 1px 6px; background: var(--surface);
+  }
+
+  footer { margin-top: 40px; font-size: 12px; color: var(--ink-soft); text-align: center; line-height: 1.7; }
+
+  @media (max-width: 560px) {
+    .shell { padding: 14px 14px 48px; }
+    .face { padding: 20px; }
+    .flashcard { min-height: 420px; }
+    .kbd-help { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .flashcard { transition: none; }
+    .cat-card, .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="top">
+    <div class="brand">
+      <div class="stamp">AP1</div>
+      <div>
+        <h1>AP1&nbsp;Lernkarten</h1>
+        <div class="sub">Fachinformatiker/-in Anwendungsentwicklung · IHK (bundeseinheitlich, auch NRW)</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="btnHome" title="Zur Themenübersicht" aria-label="Zur Themenübersicht">⌂</button>
+      <button class="icon-btn" id="btnTheme" title="Hell/Dunkel umschalten" aria-label="Hell/Dunkel umschalten">◐</button>
+    </div>
+  </header>
+
+  <!-- ================= Overview ================= -->
+  <section class="overview" id="overview">
+    <div class="hero">
+      <span class="eyebrow">Prüfungskatalog ab 2025</span>
+      <h2>Einrichten eines IT-gestützten Arbeitsplatzes</h2>
+      <p>Teil 1 der gestreckten Abschlussprüfung – für alle IT-Berufe identisch und bundesweit einheitlich.
+         Diese Karten decken die Themenbereiche des aktuellen IHK-Prüfungskatalogs ab.
+         Dein Lernfortschritt wird automatisch im Browser gespeichert.</p>
+      <div class="facts">
+        <div class="fact"><strong>90</strong> Minuten</div>
+        <div class="fact"><strong>20 %</strong> der Gesamtnote</div>
+        <div class="fact">nur offene Aufgaben</div>
+        <div class="fact">nach ca. <strong>18</strong> Monaten Ausbildung</div>
+        <div class="fact" id="factCards"><strong>0</strong> Lernkarten</div>
+      </div>
+      <div class="total-progress">
+        <div class="row">
+          <span class="label">Gesamtfortschritt</span>
+          <span class="nums" id="totalNums"></span>
+        </div>
+        <div class="bar" aria-hidden="true"><div class="seg-good" id="totalGood"></div><div class="seg-bad" id="totalBad"></div></div>
+      </div>
+      <div class="hero-cta">
+        <button class="btn primary" id="btnStartAll">Alle Karten lernen&nbsp;→</button>
+        <button class="btn" id="btnStartUnknown">Nur nicht gewusste wiederholen</button>
+        <button class="btn danger-ghost" id="btnReset">Fortschritt zurücksetzen</button>
+      </div>
+    </div>
+
+    <div class="section-title">Themenbereiche</div>
+    <div class="grid" id="catGrid"></div>
+  </section>
+
+  <!-- ================= Study ================= -->
+  <section class="study" id="study">
+    <nav class="chips" id="chips" aria-label="Themenfilter"></nav>
+
+    <div class="study-status">
+      <span class="counter" id="counter">–</span>
+      <div class="bar"><div class="seg-good" id="filterGood"></div><div class="seg-bad" id="filterBad"></div></div>
+    </div>
+
+    <div id="cardArea">
+      <div class="flip-zone">
+        <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="Lernkarte – klicken zum Umdrehen">
+          <div class="face front">
+            <div class="tag-row"><span class="cat-tag" id="frontCat"></span><span class="side-tag" id="frontState">Frage</span></div>
+            <div class="content"><div class="text" id="frontText"></div></div>
+            <div class="hint">Klicken oder Leertaste zum Umdrehen</div>
+          </div>
+          <div class="face back">
+            <div class="tag-row"><span class="cat-tag" id="backCat"></span><span class="side-tag">Antwort</span></div>
+            <div class="content"><div class="text" id="backText"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rate" id="rateRow">
+        <button class="btn good" id="btnKnown">✓&nbsp;Gewusst</button>
+        <button class="btn bad" id="btnUnknown">✗&nbsp;Nochmal üben</button>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="btnPrev">←&nbsp;Zurück</button>
+        <button class="btn primary" id="btnFlip">Umdrehen</button>
+        <button class="btn" id="btnNext">Weiter&nbsp;→</button>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn" id="btnShuffle">🔀&nbsp;Mischen</button>
+        <button class="btn" id="btnOnlyUnknown">Nur nicht gewusste</button>
+      </div>
+
+      <div class="kbd-help">
+        <kbd>←</kbd> <kbd>→</kbd> blättern · <kbd>Leertaste</kbd> umdrehen · <kbd>1</kbd> gewusst · <kbd>2</kbd> nochmal üben
+      </div>
+    </div>
+
+    <div class="empty" id="emptyState" style="display:none">
+      <div class="big">🎉</div>
+      <p><strong>Alles gewusst!</strong><br>In dieser Auswahl gibt es keine offenen Karten mehr.</p>
+      <div class="hero-cta" style="justify-content:center; margin-top:16px">
+        <button class="btn primary" id="btnEmptyAll">Alle Karten anzeigen</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Inhalte orientiert am IHK-Prüfungskatalog für die AP1 der IT-Berufe (2. Auflage, gültig ab Frühjahr 2025).<br>
+    Ohne Gewähr – ergänzend zu Berufsschule und offiziellen IHK-Unterlagen lernen.
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+/* ======================= Daten ======================= */
+
+const KATEGORIEN = [
+  { name: "Arbeitsplatz & Hardware",      topics: "Ergonomie · Komponenten · Schnittstellen · USV · Green IT · Barrierefreiheit" },
+  { name: "Betriebssysteme & Software",   topics: "Aufgaben des OS · Virtualisierung · Lizenzen · Cloud · Updates" },
+  { name: "Netzwerktechnik",              topics: "OSI · IPv4/IPv6 · Subnetting · DHCP/DNS · Protokolle · Diagnose" },
+  { name: "Softwareentwicklung",          topics: "Kontrollstrukturen · UML · BPMN · Zahlensysteme · Codierung" },
+  { name: "Qualitätssicherung & Testen",  topics: "ISO 25010 · Blackbox/Whitebox · Teststufen · Reviews" },
+  { name: "IT-Sicherheit",                topics: "Schutzziele · Verschlüsselung · 2FA · Malware · Backups" },
+  { name: "Datenschutz (DSGVO)",          topics: "Personenbezogene Daten · Grundsätze · Betroffenenrechte · DSB" },
+  { name: "Projektmanagement",            topics: "SMART · Lasten-/Pflichtenheft · Wasserfall vs. Scrum · Gantt" },
+  { name: "Wirtschaft & Kaufmännisches",  topics: "Nutzwertanalyse · Make-or-Buy · Kosten · Verträge · Amortisation" },
+  { name: "Künstliche Intelligenz",       topics: "ML vs. DL · Trainingsdaten · Einsatzgebiete · Chancen & Risiken" }
+];
+
+/* k = Kategorie-Index, f = Frage, a = Antwort */
+const KARTEN = [
+
+/* ---------- 0 · Arbeitsplatz & Hardware ---------- */
+{k:0,f:"Welche ergonomischen Anforderungen gelten für einen Bildschirmarbeitsplatz?",
+a:"• Bildschirm: Oberkante etwa auf Augenhöhe, ca. 50–70 cm Abstand, blendfrei (90° zum Fenster)\n• Stuhl: höhenverstellbar, Füße flach auf dem Boden, Ober-/Unterschenkel ca. 90°\n• Tisch: ausreichend groß, ideal höhenverstellbar\n• Beleuchtung: ca. 500 Lux, keine Reflexionen\n• Lärm möglichst gering, regelmäßige Pausen und Haltungswechsel\nRechtsgrundlage: Arbeitsstättenverordnung (Anhang Bildschirmarbeit)."},
+{k:0,f:"Nenne die wichtigsten Hardwarekomponenten eines PCs und ihre Aufgabe.",
+a:"• CPU: führt Befehle aus („Gehirn“), Kennwerte: Taktrate, Kerne, Cache\n• RAM: flüchtiger Arbeitsspeicher für laufende Programme\n• Mainboard: verbindet alle Komponenten (Chipsatz, Sockel, Slots)\n• GPU: Grafikberechnung (integriert oder dediziert)\n• Massenspeicher: SSD/HDD für dauerhafte Daten\n• Netzteil: wandelt 230 V AC in Gleichspannungen (z. B. 12 V, 5 V)"},
+{k:0,f:"Vergleiche SSD und HDD.",
+a:"SSD: Flash-Speicher, keine Mechanik → sehr schnell (v. a. Zugriffszeit), stoßunempfindlich, lautlos, geringer Verbrauch; teurer pro GB, begrenzte Schreibzyklen.\nHDD: Magnetscheiben mit Lese-/Schreibkopf → günstig pro GB, hohe Kapazitäten; langsamer, mechanisch empfindlich, lauter.\nTypisch: SSD (NVMe/M.2) für System, HDD für Archiv/Backup."},
+{k:0,f:"Wofür stehen NVMe, M.2 und SATA?",
+a:"• SATA: klassische Schnittstelle für HDD/SSD, max. ca. 600 MB/s (SATA III)\n• M.2: kompakter Formfaktor/Steckplatz, kann SATA- oder NVMe-SSDs aufnehmen\n• NVMe: Protokoll für SSDs über PCIe – deutlich schneller als SATA (mehrere GB/s)"},
+{k:0,f:"Nenne gängige externe Schnittstellen und typische Einsatzzwecke.",
+a:"• USB (A/C, 2.0/3.x): Peripherie, Speicher; USB-C oft mit Power Delivery und DisplayPort-Alt-Mode\n• HDMI: Bild + Ton für Monitore/TV\n• DisplayPort: Monitore, Daisy-Chaining, hohe Auflösungen/Frequenzen\n• RJ45 (Ethernet): kabelgebundenes Netzwerk\n• Thunderbolt: sehr schnelle Universal-Schnittstelle (Docking)\n• 3,5-mm-Klinke: Audio"},
+{k:0,f:"Was ist eine USV und welche Typen gibt es?",
+a:"USV = unterbrechungsfreie Stromversorgung. Überbrückt Stromausfälle per Akku und schützt vor Spannungsschwankungen – Zeit für geordnetes Herunterfahren.\nTypen:\n• Offline/Standby: schaltet erst bei Ausfall um (günstig)\n• Line-Interactive: gleicht zusätzlich Spannungsschwankungen aus\n• Online (Doppelwandler): Verbraucher laufen permanent über Akku/Wandler – beste Absicherung, z. B. für Server"},
+{k:0,f:"Berechne die Leistung: Ein Netzteil liefert 12 V bei 10 A. Und was besagt P = U · I?",
+a:"P = U · I = 12 V · 10 A = 120 W.\nGrundgrößen:\n• U = Spannung in Volt (V)\n• I = Stromstärke in Ampere (A)\n• P = Leistung in Watt (W)\n• Energie/Arbeit: W = P · t (z. B. in kWh)\nBeispiel Stromkosten: 120 W · 8 h = 0,96 kWh; bei 0,35 €/kWh ≈ 0,34 €."},
+{k:0,f:"Was versteht man unter Green IT? Nenne Maßnahmen.",
+a:"Umwelt- und ressourcenschonender Einsatz von IT über den gesamten Lebenszyklus.\nMaßnahmen:\n• energieeffiziente Hardware (z. B. 80-PLUS-Netzteile), Energiesparmodi\n• Virtualisierung/Konsolidierung von Servern\n• lange Nutzungsdauer, Reparatur, Refurbishing, korrektes Recycling (ElektroG)\n• Ökostrom, effiziente Kühlung im Rechenzentrum\n• Videokonferenzen statt Dienstreisen, Duplexdruck"},
+{k:0,f:"Was bedeutet Barrierefreiheit bei Software/Websites? Nenne konkrete Maßnahmen.",
+a:"Nutzbarkeit für alle Menschen, auch mit Einschränkungen (Sehen, Hören, Motorik, Kognition). Standard: WCAG.\nMaßnahmen:\n• Alternativtexte für Bilder, Untertitel für Videos\n• ausreichende Farbkontraste, Infos nie nur über Farbe\n• vollständige Tastaturbedienbarkeit, sichtbarer Fokus\n• Screenreader-Unterstützung (semantisches HTML, ARIA)\n• skalierbare Schrift, klare Sprache, verständliche Struktur"},
+{k:0,f:"Unterscheide Eingabe-, Ausgabe- und Ein-/Ausgabegeräte mit Beispielen.",
+a:"• Eingabe: Tastatur, Maus, Scanner, Mikrofon, Webcam\n• Ausgabe: Monitor, Drucker, Lautsprecher, Beamer\n• Ein- und Ausgabe: Touchscreen, Multifunktionsgerät, Headset, externe Speicher\nMerksatz: Richtung immer aus Sicht des Computers (Eingabe = Daten hinein)."},
+{k:0,f:"Welche Kriterien sind bei der Auswahl eines Monitors für einen Arbeitsplatz relevant?",
+a:"• Größe und Auflösung (z. B. 27″, WQHD/4K), Pixeldichte\n• Panel-Typ: IPS (Farben/Blickwinkel), VA (Kontrast), TN (schnell, günstig)\n• Ergonomie: höhenverstellbar, neigbar, drehbar (Pivot)\n• Anschlüsse (DisplayPort/HDMI/USB-C), ggf. Docking per USB-C\n• Bildwiederholrate, Helligkeit, Entspiegelung, Blaulichtreduktion\n• Energieverbrauch und Zertifikate (z. B. TCO, Energy Star)"},
+{k:0,f:"Was ist beim Aufbau/Anschluss eines neuen IT-Arbeitsplatzes zu beachten (Vorgehen)?",
+a:"1. Anforderungen klären (Nutzerprofil, Software, Ergonomie)\n2. Sicherheit: ESD vermeiden, Kabel ordentlich verlegen (Stolperfallen), Elektrik prüfen\n3. Hardware aufbauen, Peripherie anschließen\n4. Betriebssystem/Software installieren, Updates einspielen\n5. Netzwerk, Drucker, Benutzerkonto und Rechte einrichten\n6. Sicherheitsrichtlinien umsetzen (Passwort, Verschlüsselung, Backup)\n7. Funktionstest, Übergabe mit Einweisung, Dokumentation"},
+{k:0,f:"Wie viel sind 1 KiB, 1 MiB und 1 GiB – und was ist der Unterschied zu KB/MB/GB?",
+a:"Binärpräfixe (Basis 2): 1 KiB = 1024 Byte, 1 MiB = 1024 KiB = 1.048.576 Byte, 1 GiB = 1024 MiB.\nDezimalpräfixe (Basis 10): 1 KB = 1000 Byte, 1 MB = 10⁶ Byte, 1 GB = 10⁹ Byte.\nDeshalb zeigt eine „500-GB-Festplatte“ im OS nur ca. 465 GiB an."},
+
+/* ---------- 1 · Betriebssysteme & Software ---------- */
+{k:1,f:"Welche Aufgaben hat ein Betriebssystem?",
+a:"• Prozessverwaltung (Scheduling, Multitasking)\n• Speicherverwaltung (RAM, virtueller Speicher)\n• Dateiverwaltung (Dateisysteme wie NTFS, ext4)\n• Geräteverwaltung über Treiber\n• Benutzer- und Rechteverwaltung\n• Schnittstelle zwischen Hardware, Anwendungen und Benutzer (GUI/CLI)"},
+{k:1,f:"Was ist Virtualisierung und welche Vorteile bietet sie?",
+a:"Mehrere virtuelle Maschinen (VMs) mit eigenen Betriebssystemen laufen auf einer physischen Maschine, verwaltet durch einen Hypervisor.\n• Typ 1 (bare metal): direkt auf Hardware, z. B. ESXi, Hyper-V, Proxmox\n• Typ 2 (hosted): auf einem Host-OS, z. B. VirtualBox, VMware Workstation\nVorteile: bessere Auslastung, Kostenersparnis, Isolation, Snapshots, einfache Migration/Testumgebungen."},
+{k:1,f:"Worin unterscheiden sich Container (z. B. Docker) von virtuellen Maschinen?",
+a:"Container teilen sich den Kernel des Host-OS und isolieren nur Prozesse + Abhängigkeiten → sehr leichtgewichtig, starten in Sekunden, wenig Overhead.\nVMs bringen jeweils ein komplettes Gast-OS mit → stärkere Isolation, aber mehr Ressourcenbedarf.\nContainer eignen sich besonders für Microservices und reproduzierbare Deployments."},
+{k:1,f:"Unterscheide Standardsoftware, Individualsoftware und Branchensoftware.",
+a:"• Standardsoftware: fertiges Produkt für viele Nutzer (z. B. MS Office) – günstig, sofort verfügbar, aber nicht maßgeschneidert\n• Individualsoftware: speziell für einen Auftraggeber entwickelt – passt exakt, aber teuer und längere Entwicklungszeit\n• Branchensoftware: Standardsoftware für eine bestimmte Branche (z. B. Praxisverwaltung, Handwerkersoftware)"},
+{k:1,f:"Welche Softwarelizenzmodelle kennst du?",
+a:"• Proprietär: Kauf-/Volumenlizenz, Quellcode geschlossen (z. B. Windows)\n• Abonnement/SaaS: laufende Gebühr (z. B. Microsoft 365)\n• Open Source: Quellcode offen; Lizenzen z. B. GPL (Copyleft – abgeleitete Werke müssen wieder GPL sein), MIT/BSD/Apache (permissiv)\n• Freeware: kostenlos, aber Quellcode geschlossen\n• Shareware/Trial: zeitlich oder funktional begrenzt\n• OEM: an Hardware gebunden"},
+{k:1,f:"Was bedeutet Copyleft bei der GPL?",
+a:"Wer GPL-lizenzierte Software verändert oder in eigene Software einbaut und diese weitergibt, muss das Ergebnis wieder unter der GPL (inkl. Quellcode) veröffentlichen.\nDadurch bleibt freie Software dauerhaft frei. Permissive Lizenzen (MIT, BSD, Apache) verlangen das nicht – dort ist auch die Nutzung in proprietärer Software erlaubt."},
+{k:1,f:"Erkläre IaaS, PaaS und SaaS mit Beispielen.",
+a:"• IaaS (Infrastructure as a Service): virtuelle Infrastruktur – VMs, Speicher, Netz (z. B. AWS EC2). Kunde verwaltet OS + Software.\n• PaaS (Platform as a Service): Entwicklungs-/Laufzeitplattform (z. B. Azure App Service). Kunde bringt nur die Anwendung.\n• SaaS (Software as a Service): fertige Anwendung im Browser (z. B. Microsoft 365).\nJe weiter Richtung SaaS, desto weniger Verwaltungsaufwand, aber auch weniger Kontrolle."},
+{k:1,f:"Unterscheide Public, Private und Hybrid Cloud.",
+a:"• Public Cloud: Dienste eines Anbieters über das Internet, geteilte Infrastruktur (AWS, Azure, Google) – flexibel, keine eigenen Investitionen\n• Private Cloud: exklusive Cloud für ein Unternehmen (eigenes RZ oder gehostet) – volle Kontrolle, z. B. für sensible Daten\n• Hybrid Cloud: Kombination – Standardlast in der Public Cloud, kritische Daten privat"},
+{k:1,f:"Welche Vor- und Nachteile hat Cloud-Nutzung für ein Unternehmen?",
+a:"Vorteile: Skalierbarkeit, keine hohen Anfangsinvestitionen (OpEx statt CapEx), ortsunabhängiger Zugriff, hohe Verfügbarkeit, Wartung durch Anbieter.\nNachteile: Abhängigkeit vom Anbieter (Vendor Lock-in), Internetverbindung nötig, Datenschutz/Datenstandort (DSGVO!), laufende Kosten, weniger Kontrolle."},
+{k:1,f:"Warum sind regelmäßige Updates wichtig? Unterscheide Update, Upgrade, Patch, Hotfix.",
+a:"Updates schließen Sicherheitslücken, beheben Fehler und halten Software kompatibel.\n• Patch: kleine Korrektur (oft Sicherheit)\n• Hotfix: dringende Sofortkorrektur für ein konkretes Problem\n• Update: kleinere Aktualisierung innerhalb einer Version\n• Upgrade: Wechsel auf eine neue Hauptversion\nIm Unternehmen: Updates erst testen, dann gestaffelt verteilen (Patch-Management)."},
+{k:1,f:"Was ist bei einer unbeaufsichtigten/automatisierten Betriebssysteminstallation im Unternehmen sinnvoll?",
+a:"• Standard-Image (Master) mit Grundkonfiguration erstellen und klonen (Imaging/Deployment, z. B. per PXE-Boot, MDT, Intune)\n• Antwortdateien für unbeaufsichtigte Installation (unattended)\n• Vorteile: einheitliche, reproduzierbare Arbeitsplätze, Zeitersparnis, weniger Konfigurationsfehler\n• Danach: zentrale Verwaltung über Gruppenrichtlinien/MDM"},
+{k:1,f:"Was sind Treiber und warum können sie Probleme verursachen?",
+a:"Treiber sind Software, die dem Betriebssystem die Steuerung konkreter Hardware ermöglicht (Übersetzer zwischen OS und Gerät).\nProbleme: veraltete/fehlerhafte Treiber führen zu Abstürzen oder Fehlfunktionen; falscher Treiber für das Modell/OS; Konflikte nach Updates.\nLösung: passende Treiber vom Hersteller, aktuell halten, vorher Wiederherstellungspunkt."},
+
+/* ---------- 2 · Netzwerktechnik ---------- */
+{k:2,f:"Nenne die 7 Schichten des OSI-Modells (mit Beispielen).",
+a:"7 Anwendung (HTTP, SMTP)\n6 Darstellung (Zeichencodierung, TLS-Verschlüsselung)\n5 Sitzung (Sitzungsverwaltung)\n4 Transport (TCP, UDP, Ports)\n3 Vermittlung (IP, Router)\n2 Sicherung (Ethernet, MAC-Adressen, Switch)\n1 Bitübertragung (Kabel, Funk, Hub)\nMerksatz: „Alle deutschen Studenten trinken verschiedene Sorten Bier“ (von 7 nach 1)."},
+{k:2,f:"Vergleiche TCP und UDP.",
+a:"TCP: verbindungsorientiert (3-Way-Handshake), zuverlässig (Bestätigungen, Neuübertragung, Reihenfolge), Flusskontrolle – z. B. HTTP(S), E-Mail, Dateiübertragung.\nUDP: verbindungslos, keine Zustellgarantie, kaum Overhead → schnell, geringe Latenz – z. B. DNS, VoIP, Streaming, Online-Gaming.\nMerke: TCP = zuverlässig, UDP = schnell."},
+{k:2,f:"Was ist eine IPv4-Adresse und wie ist sie aufgebaut?",
+a:"32-Bit-Adresse, dargestellt als 4 Oktette (0–255), z. B. 192.168.10.25.\nSie besteht aus Netzanteil und Hostanteil – die Trennung bestimmt die Subnetzmaske (z. B. 255.255.255.0 = /24).\nBesondere Adressen: Netzadresse (alle Hostbits 0), Broadcast (alle Hostbits 1), 127.0.0.1 (Loopback)."},
+{k:2,f:"Welche privaten IPv4-Adressbereiche gibt es?",
+a:"• 10.0.0.0 – 10.255.255.255 (10.0.0.0/8)\n• 172.16.0.0 – 172.31.255.255 (172.16.0.0/12)\n• 192.168.0.0 – 192.168.255.255 (192.168.0.0/16)\nSie werden im Internet nicht geroutet – Internetzugang über NAT.\nZusätzlich: 169.254.0.0/16 = APIPA (automatische Adresse, wenn kein DHCP erreichbar)."},
+{k:2,f:"Subnetting: Wie viele Hosts passen in ein /26-Netz und wie lautet die Subnetzmaske?",
+a:"/26 → 26 Netzbits, 6 Hostbits.\nHosts: 2⁶ − 2 = 62 (minus Netz- und Broadcastadresse).\nSubnetzmaske: 255.255.255.192.\nAllgemein: Hosts = 2^(32−Präfix) − 2; Schrittweite im letzten Oktett = 256 − Maskenwert (hier 64: .0, .64, .128, .192)."},
+{k:2,f:"Was sind die wichtigsten Eigenschaften von IPv6?",
+a:"• 128-Bit-Adressen, hexadezimal in 8 Blöcken (z. B. 2001:0db8::1) – riesiger Adressraum\n• Kürzung: führende Nullen weglassen, einmal „::“ für Nullblöcke\n• kein NAT nötig, Autokonfiguration (SLAAC), IPsec integriert\n• Adresstypen: Global Unicast (2000::/3), Link-Local (fe80::/10), Unique Local (fc00::/7), Multicast (ff00::/8) – kein Broadcast\n• Loopback: ::1"},
+{k:2,f:"Wozu dient DHCP und wie läuft die Adressvergabe ab (DORA)?",
+a:"DHCP vergibt Netzwerkkonfiguration automatisch: IP-Adresse, Subnetzmaske, Gateway, DNS-Server, Lease-Zeit.\nAblauf (DORA):\n1. Discover – Client sucht per Broadcast einen Server\n2. Offer – Server bietet Adresse an\n3. Request – Client fordert die Adresse an\n4. Acknowledge – Server bestätigt die Zuweisung"},
+{k:2,f:"Wozu dient DNS und wie läuft eine Namensauflösung ab?",
+a:"DNS übersetzt Domainnamen in IP-Adressen (und zurück).\nAblauf: Client fragt seinen DNS-Resolver → prüft Cache → sonst rekursive Auflösung über Root-Server → TLD-Server (.de) → autoritativer Nameserver der Domain → Antwort wird gecacht.\nWichtige Record-Typen: A (IPv4), AAAA (IPv6), CNAME (Alias), MX (Mail), TXT."},
+{k:2,f:"Was ist NAT und warum wird es eingesetzt?",
+a:"NAT (Network Address Translation) übersetzt private IP-Adressen in eine öffentliche (meist PAT/Masquerading: viele private Adressen teilen sich eine öffentliche über verschiedene Ports).\nGründe: Knappheit öffentlicher IPv4-Adressen, Verbergen der internen Netzstruktur.\nNachteil: erschwert eingehende Verbindungen (Portweiterleitung nötig)."},
+{k:2,f:"Ordne zu: Hub, Switch, Router, Access Point, Firewall.",
+a:"• Hub (Schicht 1): sendet alles an alle Ports – veraltet\n• Switch (Schicht 2): leitet Frames gezielt anhand MAC-Adressen weiter\n• Router (Schicht 3): verbindet Netze, routet anhand IP-Adressen\n• Access Point: bindet WLAN-Geräte ans kabelgebundene Netz an\n• Firewall: filtert Verkehr nach Regeln (Quelle/Ziel, Ports, Zustand)"},
+{k:2,f:"Nenne wichtige Ports und ihre Protokolle.",
+a:"20/21 FTP · 22 SSH/SFTP · 23 Telnet (unsicher) · 25 SMTP\n53 DNS · 67/68 DHCP · 80 HTTP · 110 POP3 · 143 IMAP\n443 HTTPS · 465/587 SMTPS/Submission · 993 IMAPS · 995 POP3S · 3389 RDP\nMerke: die „S“-Varianten sind die TLS-verschlüsselten Versionen."},
+{k:2,f:"Mit welchen Befehlen/Werkzeugen diagnostizierst du Netzwerkprobleme?",
+a:"• ping: Erreichbarkeit + Laufzeit prüfen\n• tracert/traceroute: Weg der Pakete, Ausfallstelle finden\n• ipconfig /all (Windows) bzw. ip a (Linux): eigene Konfiguration anzeigen\n• nslookup/dig: DNS-Auflösung testen\n• netstat: offene Verbindungen/Ports\nSystematisch: eigene IP → Gateway → externe IP → DNS-Name (Schicht für Schicht)."},
+{k:2,f:"Ein PC hat die IP 169.254.x.x – was bedeutet das und wie gehst du vor?",
+a:"Das ist eine APIPA-Adresse: Der Client hat keinen DHCP-Server erreicht und sich selbst eine Adresse gegeben – kein Netzwerk-/Internetzugriff.\nVorgehen: Kabel/WLAN-Verbindung prüfen → Switchport/Link-LED → DHCP-Server erreichbar/aktiv? → ipconfig /release & /renew → ggf. statische Adresse zum Testen."},
+{k:2,f:"Unterscheide LAN, WLAN, WAN und VPN.",
+a:"• LAN: lokales, kabelgebundenes Netz (Ethernet), z. B. Firmengebäude\n• WLAN: lokales Funknetz (IEEE 802.11, aktuell Wi-Fi 6/6E/7); Sicherheit: WPA2/WPA3\n• WAN: Weitverkehrsnetz, verbindet Standorte/Internet\n• VPN: verschlüsselter „Tunnel“ durch ein unsicheres Netz – für Homeoffice (Remote Access) oder Standortkopplung (Site-to-Site)"},
+{k:2,f:"Welche Netzwerk-Übertragungsmedien gibt es und wo setzt man sie ein?",
+a:"• Twisted-Pair-Kupferkabel (Cat 5e/6/7): Standard im LAN, bis 100 m, 1–10 Gbit/s\n• Glasfaser (LWL): sehr hohe Bandbreite, große Distanzen, unempfindlich gegen elektromagnetische Störungen – Backbone, Gebäudekopplung\n• Funk (WLAN, Mobilfunk/5G): flexibel, mobil, aber geteiltes Medium und störanfälliger"},
+
+/* ---------- 3 · Softwareentwicklung ---------- */
+{k:3,f:"Welche grundlegenden Kontrollstrukturen gibt es in der Programmierung?",
+a:"• Sequenz: Anweisungen nacheinander\n• Auswahl/Verzweigung: if/else, switch-case\n• Wiederholung/Schleifen:\n  – kopfgesteuert: while (Prüfung vor Durchlauf, ggf. 0 Durchläufe)\n  – fußgesteuert: do-while (mindestens 1 Durchlauf)\n  – zählergesteuert: for"},
+{k:3,f:"Was ist Pseudocode und wofür wird er verwendet?",
+a:"Sprachunabhängige, informelle Beschreibung eines Algorithmus in strukturierter Alltagssprache (WENN … DANN, SOLANGE …, FÜR …).\nZweck: Logik planen und kommunizieren, bevor programmiert wird; in der AP1 häufig zum Lesen/Vervollständigen von Algorithmen gefordert (Struktogramme und PAP sind seit 2025 gestrichen)."},
+{k:3,f:"Welche elementaren Datentypen kennst du?",
+a:"• Ganzzahlen: int/long (z. B. 42)\n• Gleitkommazahlen: float/double (z. B. 3.14)\n• Zeichen: char ('A')\n• Zeichenkette: String (\"Hallo\")\n• Wahrheitswert: boolean (true/false)\nDazu zusammengesetzte Typen: Array/Liste, Objekt/Klasse.\nWichtig: passenden Typ wählen (Speicher, Wertebereich, Genauigkeit – Geldbeträge nicht als float!)."},
+{k:3,f:"Wandle 214 (dezimal) in Binär und Hexadezimal um.",
+a:"Dezimal → Binär (Restwertmethode oder Stellenwerte 128+64+16+4+2):\n214 = 1101 0110₂\nBinär → Hex: Nibbles einzeln umrechnen: 1101 = D, 0110 = 6 → D6₁₆\nKontrolle: 13·16 + 6 = 208 + 6 = 214 ✓"},
+{k:3,f:"Wandle 1010 1111₂ in Dezimal und Hexadezimal um.",
+a:"Binär → Dezimal: 128+32+8+4+2+1 = 175\nBinär → Hex: 1010 = A, 1111 = F → AF₁₆\nTipp: Immer in 4er-Gruppen (Nibbles) denken – jede Gruppe ist genau eine Hex-Ziffer."},
+{k:3,f:"Was ist der Unterschied zwischen ASCII und Unicode (UTF-8)?",
+a:"• ASCII: 7 Bit, 128 Zeichen – nur lateinisches Grundalphabet, Ziffern, Steuerzeichen; keine Umlaute\n• Unicode: universeller Zeichensatz für praktisch alle Schriften (Codepoints wie U+00E4 für „ä“)\n• UTF-8: verbreitetste Unicode-Kodierung, variable Länge 1–4 Byte, abwärtskompatibel zu ASCII (erste 128 Zeichen identisch)"},
+{k:3,f:"Wozu dient ein UML-Use-Case-Diagramm (Anwendungsfalldiagramm)?",
+a:"Es zeigt, welche Funktionen (Anwendungsfälle, als Ellipsen) ein System aus Sicht der Akteure (Strichmännchen: Personen oder Fremdsysteme) bietet – die Außensicht, keine Abläufe.\nBeziehungen: Akteur—Use-Case (Assoziation), «include» (immer eingebunden), «extend» (optionale Erweiterung), Systemgrenze als Rahmen.\nEinsatz: Anforderungsanalyse mit dem Kunden."},
+{k:3,f:"Welche Elemente hat ein UML-Aktivitätsdiagramm?",
+a:"• Startknoten (gefüllter Kreis), Endknoten (Kreis mit Ring)\n• Aktivitäten/Aktionen (abgerundete Rechtecke)\n• Kanten/Pfeile für den Kontrollfluss\n• Entscheidung/Zusammenführung (Raute) mit Bedingungen [x > 5]\n• Parallelisierung/Synchronisation (schwarze Balken: Fork/Join)\n• optional Verantwortlichkeitsbereiche (Swimlanes)\nZweck: Abläufe/Prozesse und Algorithmen modellieren."},
+{k:3,f:"Was ist BPMN und welche Grundelemente gibt es?",
+a:"Business Process Model and Notation – Standard zur grafischen Modellierung von Geschäftsprozessen.\nGrundelemente:\n• Ereignisse (Kreise): Start, Zwischen-, Endereignis\n• Aktivitäten/Tasks (abgerundete Rechtecke)\n• Gateways (Rauten): XOR (exklusiv), AND (parallel), OR\n• Sequenzflüsse (Pfeile), Nachrichtenflüsse (gestrichelt)\n• Pools und Lanes für Beteiligte/Rollen"},
+{k:3,f:"Was sind Programmierparadigmen? Nenne Beispiele.",
+a:"Grundlegende Programmierstile:\n• Imperativ/prozedural: Abfolge von Anweisungen und Prozeduren (C)\n• Objektorientiert: Klassen und Objekte kapseln Daten + Verhalten (Java, C#)\n• Funktional: Funktionen ohne Seiteneffekte (Haskell; Lambdas in vielen Sprachen)\n• Deklarativ: beschreibt das Was statt des Wie (SQL, HTML)\nViele Sprachen sind Multiparadigmen-Sprachen (Python, JavaScript)."},
+{k:3,f:"Unterscheide Compiler und Interpreter.",
+a:"• Compiler: übersetzt den gesamten Quellcode vor der Ausführung in Maschinencode/Bytecode (C, C++, Java → Bytecode) – schnelle Ausführung, Fehler zur Übersetzungszeit\n• Interpreter: führt Quellcode Zeile für Zeile direkt aus (klassisches Python, JavaScript) – flexibel, aber langsamer\n• Mischformen: Java/C# (Compiler + VM mit JIT)"},
+{k:3,f:"Was ist ein Algorithmus und welche Eigenschaften muss er haben?",
+a:"Eine eindeutige, endliche Handlungsvorschrift zur Lösung eines Problems.\nEigenschaften:\n• Eindeutigkeit/Determiniertheit: gleiche Eingabe → gleiches Ergebnis\n• Ausführbarkeit: jeder Schritt ist durchführbar\n• Endlichkeit/Terminierung: endet nach endlich vielen Schritten\n• Allgemeingültigkeit: löst eine ganze Problemklasse, nicht nur einen Einzelfall"},
+{k:3,f:"Was macht dieser Pseudocode?\nsumme = 0\nFÜR i = 1 BIS 100\n  WENN i MOD 2 = 0 DANN summe = summe + i\nGIB summe AUS",
+a:"Er summiert alle geraden Zahlen von 1 bis 100 (2 + 4 + … + 100).\nMOD liefert den Divisionsrest – i MOD 2 = 0 bedeutet „i ist gerade“.\nErgebnis: 2550.\nSolche Lese-/Nachvollzieh-Aufgaben (Wert von Variablen verfolgen, Tabelle führen) sind typisch für die AP1."},
+{k:3,f:"Was bedeutet Variablendeklaration, Initialisierung und Zuweisung?",
+a:"• Deklaration: Variable mit Name und Datentyp bekannt machen (int zahl;)\n• Initialisierung: erste Wertzuweisung (zahl = 5; oft kombiniert: int zahl = 5;)\n• Zuweisung: Wert (neu) setzen (zahl = zahl + 1;)\nDazu: sprechende Namen verwenden, Gültigkeitsbereich (Scope) beachten, Konstanten für unveränderliche Werte."},
+{k:3,f:"Was ist der Unterschied zwischen Syntaxfehler, Laufzeitfehler und logischem Fehler?",
+a:"• Syntaxfehler: verstößt gegen die Sprachregeln, Programm startet nicht (fehlendes Semikolon) – findet der Compiler\n• Laufzeitfehler: tritt während der Ausführung auf (Division durch 0, NullPointer) – Programm stürzt ab\n• Logischer Fehler: Programm läuft, liefert aber falsche Ergebnisse (falsche Formel) – am schwersten zu finden, hilft: Tests und Debugging"},
+
+/* ---------- 4 · Qualitätssicherung & Testen ---------- */
+{k:4,f:"Nenne Qualitätsmerkmale von Software nach ISO 25010.",
+a:"• Funktionale Eignung (richtig, vollständig, angemessen)\n• Effizienz/Performance (Zeitverhalten, Ressourcen)\n• Kompatibilität (Interoperabilität)\n• Benutzbarkeit/Usability (erlernbar, bedienbar, barrierefrei)\n• Zuverlässigkeit (Reife, Verfügbarkeit, Fehlertoleranz)\n• Sicherheit (Vertraulichkeit, Integrität, Nachweisbarkeit)\n• Wartbarkeit (modular, änderbar, testbar)\n• Übertragbarkeit/Portabilität (anpassbar, installierbar)"},
+{k:4,f:"Unterscheide Blackbox- und Whitebox-Test.",
+a:"• Blackbox: Tester kennt den Code nicht, testet nur Ein-/Ausgabeverhalten gegen die Spezifikation. Methoden: Äquivalenzklassen, Grenzwertanalyse.\n• Whitebox: Tester kennt den Quellcode und prüft die innere Struktur. Methoden: Anweisungs-/Zweig-/Pfadüberdeckung.\nBlackbox → „Tut es das Richtige?“, Whitebox → „Sind alle Code-Wege geprüft?“"},
+{k:4,f:"Was sind Äquivalenzklassen und Grenzwertanalyse? Beispiel: Eingabe 1–100 erlaubt.",
+a:"Äquivalenzklassen: Eingaben in Gruppen teilen, die sich gleich verhalten – ein Vertreter pro Klasse genügt.\n• gültig: 1–100 (z. B. 50)\n• ungültig: < 1 (z. B. 0) und > 100 (z. B. 101), ggf. keine Zahl (\"abc\")\nGrenzwertanalyse: Werte an den Rändern testen, da dort die meisten Fehler liegen: 0, 1, 2 und 99, 100, 101."},
+{k:4,f:"Nenne die Teststufen von Software.",
+a:"1. Unit-/Komponententest: einzelne Funktionen/Klassen isoliert (oft automatisiert, z. B. JUnit)\n2. Integrationstest: Zusammenspiel mehrerer Komponenten/Schnittstellen\n3. Systemtest: das Gesamtsystem gegen die Anforderungen\n4. Abnahmetest (UAT): durch den Kunden/Fachbereich in realer Umgebung – Grundlage für die Abnahme"},
+{k:4,f:"Was ist ein Regressionstest?",
+a:"Wiederholung bereits bestandener Tests nach Änderungen (Bugfix, neues Feature), um sicherzustellen, dass vorher funktionierende Teile nicht kaputtgegangen sind.\nWeil das oft nötig ist, lohnt sich Testautomatisierung (Testsuite läuft z. B. bei jedem Commit in der CI-Pipeline)."},
+{k:4,f:"Was gehört in einen Testfall (Testfallbeschreibung)?",
+a:"• eindeutige ID und Bezeichnung\n• Vorbedingungen (Ausgangszustand, Testdaten)\n• Testschritte (konkrete Aktionen)\n• Eingabewerte\n• erwartetes Ergebnis (Soll)\n• tatsächliches Ergebnis (Ist) + Status bestanden/fehlgeschlagen\n• Tester, Datum, ggf. Verweis auf Anforderung"},
+{k:4,f:"Was ist ein Code-Review und welche Vorteile bietet es?",
+a:"Systematische Durchsicht von Quellcode durch andere Entwickler (z. B. im Pull Request) vor dem Merge.\nVorteile:\n• Fehler früh finden (billiger als später)\n• einheitlicher Stil, bessere Wartbarkeit\n• Wissenstransfer im Team, Vier-Augen-Prinzip\nVarianten: Pair Programming, Walkthrough, formale Inspektion."},
+{k:4,f:"Unterscheide Verifikation und Validierung.",
+a:"• Verifikation: „Bauen wir das Produkt richtig?“ – Prüfung gegen die Spezifikation (Reviews, Tests gegen das Pflichtenheft)\n• Validierung: „Bauen wir das richtige Produkt?“ – Prüfung, ob es die tatsächlichen Bedürfnisse des Nutzers erfüllt (Abnahmetest, Nutzerfeedback)\nEin Produkt kann spezifikationskonform (verifiziert) und trotzdem am Bedarf vorbei sein."},
+{k:4,f:"Warum ist Dokumentation wichtig und welche Arten gibt es?",
+a:"Sie sichert Wissen, erleichtert Wartung/Einarbeitung und ist oft vertraglich/rechtlich gefordert.\nArten:\n• Anwenderdokumentation: Handbuch, Online-Hilfe, FAQ\n• Entwicklerdokumentation: Code-Kommentare, API-Doku, Architektur\n• Systemdokumentation: Konfiguration, Netzpläne, Betriebshandbuch\n• Testdokumentation, Projektdokumentation (Protokolle, Entscheidungen)"},
+{k:4,f:"Was versteht man unter Usability und wie kann man sie prüfen?",
+a:"Gebrauchstauglichkeit: Nutzer erreichen ihre Ziele effektiv (überhaupt), effizient (mit wenig Aufwand) und zufriedenstellend (ISO 9241).\nPrüfen:\n• Usability-Tests mit echten Nutzern (Aufgaben lösen, laut denken)\n• Heuristische Evaluation durch Experten\n• A/B-Tests, Befragungen\nGute Usability: klare Navigation, Konsistenz, verständliche Fehlermeldungen, Feedback."},
+{k:4,f:"Statisches vs. dynamisches Testen – was ist der Unterschied?",
+a:"• Statisch: ohne Programmausführung – Reviews, statische Codeanalyse (Linter), Prüfung von Dokumenten. Findet Fehler sehr früh.\n• Dynamisch: Programm wird mit Testdaten ausgeführt – Unit-, Integrations-, Systemtests.\nBeides ergänzt sich; je früher ein Fehler gefunden wird, desto günstiger die Behebung („Rule of ten“)."},
+
+/* ---------- 5 · IT-Sicherheit ---------- */
+{k:5,f:"Nenne und erkläre die drei klassischen Schutzziele der IT-Sicherheit.",
+a:"• Vertraulichkeit (Confidentiality): nur Befugte haben Zugriff – Verschlüsselung, Zugriffskontrolle\n• Integrität (Integrity): Daten sind unverfälscht/vollständig – Hashwerte, Signaturen\n• Verfügbarkeit (Availability): Systeme/Daten sind nutzbar, wenn sie gebraucht werden – Redundanz, Backups, USV\n(CIA-Triade; erweitert um Authentizität und Nicht-Abstreitbarkeit)"},
+{k:5,f:"Unterscheide symmetrische und asymmetrische Verschlüsselung.",
+a:"• Symmetrisch: gleicher Schlüssel für Ver- und Entschlüsselung (z. B. AES) – sehr schnell; Problem: sicherer Schlüsselaustausch\n• Asymmetrisch: Schlüsselpaar aus öffentlichem und privatem Schlüssel (z. B. RSA) – öffentlicher Schlüssel verschlüsselt, nur der private entschlüsselt; langsamer\n• Hybrid (z. B. TLS): asymmetrisch den Sitzungsschlüssel austauschen, dann symmetrisch verschlüsseln"},
+{k:5,f:"Was ist ein Hashverfahren und wofür wird es eingesetzt?",
+a:"Eine Einwegfunktion, die aus beliebigen Daten einen Wert fester Länge erzeugt (z. B. SHA-256).\nEigenschaften: gleiche Eingabe → gleicher Hash; nicht umkehrbar; kleinste Änderung → völlig anderer Hash; kollisionsresistent.\nEinsatz:\n• Integritätsprüfung von Downloads/Daten\n• Passwortspeicherung (gehasht + Salt, nie im Klartext!)\n• digitale Signaturen"},
+{k:5,f:"Was ist Zwei-Faktor-Authentifizierung (2FA) und welche Faktoren gibt es?",
+a:"Anmeldung mit zwei Faktoren aus verschiedenen Kategorien:\n• Wissen: Passwort, PIN\n• Besitz: Smartphone (TOTP-App), Hardware-Token, Smartcard\n• Biometrie (Sein): Fingerabdruck, Gesicht\nSelbst wenn das Passwort gestohlen wird, fehlt Angreifern der zweite Faktor. Zwei Passwörter wären KEINE 2FA (gleiche Kategorie)."},
+{k:5,f:"Was macht ein sicheres Passwort aus und wie verwaltet man Passwörter sinnvoll?",
+a:"• lang (empfohlen 12+ Zeichen, gern Passphrase), Mix aus Zeichenarten\n• kein Bezug zur Person, keine Wörterbuchbegriffe\n• pro Dienst ein eigenes Passwort – Passwortmanager nutzen\n• 2FA aktivieren, wo möglich\n• nicht notieren/weitergeben; Wechsel v. a. bei Verdacht auf Kompromittierung\n• Speicherung serverseitig nur gehasht + gesalzen"},
+{k:5,f:"Nenne und erkläre gängige Malware-Arten.",
+a:"• Virus: hängt sich an Dateien, verbreitet sich beim Ausführen\n• Wurm: verbreitet sich selbstständig übers Netzwerk\n• Trojaner: tarnt sich als nützliches Programm, öffnet z. B. Hintertüren\n• Ransomware: verschlüsselt Daten, fordert Lösegeld\n• Spyware/Keylogger: späht Daten/Eingaben aus\n• Adware: unerwünschte Werbung\n• Rootkit: versteckt Schadfunktionen tief im System\n• Botnetz: gekaperte Rechner für Angriffe (z. B. DDoS)"},
+{k:5,f:"Was ist Social Engineering und Phishing? Wie schützt man sich?",
+a:"Social Engineering: Angreifer manipulieren Menschen (Hilfsbereitschaft, Angst, Autorität), um an Daten/Zugänge zu kommen – z. B. falscher IT-Support am Telefon.\nPhishing: gefälschte Mails/Websites, die Zugangsdaten abgreifen; Spear-Phishing = gezielt auf eine Person.\nSchutz: Misstrauen bei Druck/Dringlichkeit, Absender und Links prüfen, nie Passwörter herausgeben, 2FA, Schulungen/Awareness, Vorfälle melden."},
+{k:5,f:"Welche Backup-Strategien/-Arten kennst du?",
+a:"Arten:\n• Vollbackup: alles – einfachste Wiederherstellung, größter Platzbedarf\n• Differenziell: alles seit dem letzten Vollbackup – Restore: Voll + letztes Diff\n• Inkrementell: alles seit dem letzten Backup (egal welcher Art) – klein/schnell, Restore: Voll + alle Inkremente\n3-2-1-Regel: 3 Kopien, 2 verschiedene Medien, 1 Kopie außer Haus/offline.\nWichtig: Wiederherstellung regelmäßig testen!"},
+{k:5,f:"Ein Unternehmen macht sonntags ein Vollbackup und täglich inkrementelle Backups. Donnerstag früh fällt die Platte aus – welche Backups brauchst du?",
+a:"Das Vollbackup von Sonntag plus die inkrementellen Backups von Montag, Dienstag und Mittwoch – in dieser Reihenfolge einspielen.\nBei differenziellen Backups bräuchte man nur: Vollbackup Sonntag + Differenzbackup Mittwoch (das jeweils letzte).\nTrade-off: inkrementell = weniger Speicher, aufwendigerer Restore."},
+{k:5,f:"Wozu dient eine Firewall und welche Arten gibt es?",
+a:"Sie kontrolliert Datenverkehr anhand von Regeln (Quelle, Ziel, Port, Protokoll, Zustand) und blockiert Unerwünschtes.\n• Paketfilter: prüft einzelne Pakete (IP/Port)\n• Stateful Inspection: berücksichtigt den Verbindungszustand\n• Application-/Next-Gen-Firewall: versteht Anwendungsprotokolle, Deep Packet Inspection\n• Personal Firewall: auf dem Endgerät; Hardware-Firewall: am Netzübergang\nErgänzend: DMZ für öffentlich erreichbare Server."},
+{k:5,f:"Was bedeutet Verschlüsselung „at rest“ und „in transit“?",
+a:"• In transit (Übertragung): Daten auf dem Weg verschlüsseln – TLS/HTTPS, VPN, verschlüsselte E-Mail (S/MIME, PGP)\n• At rest (Speicherung): gespeicherte Daten verschlüsseln – Festplattenverschlüsselung (BitLocker, LUKS), verschlüsselte Datenbanken/Backups, Container (VeraCrypt)\nBeides nötig: Ein gestohlener Laptop ohne Datenträgerverschlüsselung ist ein Datenleck."},
+{k:5,f:"Was sind TOMs (technische und organisatorische Maßnahmen)? Nenne Beispiele.",
+a:"Maßnahmen zum Schutz von Daten und Systemen (auch von der DSGVO in Art. 32 gefordert).\nTechnisch: Verschlüsselung, Firewall, Zugriffskontrolle/Berechtigungen, Backups, Protokollierung, Virenschutz, USV.\nOrganisatorisch: Berechtigungskonzept, Schulungen, Passwort-Richtlinie, Besucherregelung, Clean-Desk-Policy, Notfallplan, Vertretungsregelungen."},
+{k:5,f:"Was ist der Unterschied zwischen Authentifizierung, Autorisierung und Authentisierung?",
+a:"• Authentisierung: Nutzer weist seine Identität nach (gibt Passwort ein)\n• Authentifizierung: System prüft diesen Nachweis\n• Autorisierung: System gewährt dem erfolgreich Authentifizierten bestimmte Rechte („Was darf er?“)\nMerke: Erst wer du bist (AuthN), dann was du darfst (AuthZ). Least-Privilege-Prinzip: nur so viele Rechte wie nötig."},
+{k:5,f:"Was ist eine digitale Signatur und was leistet sie?",
+a:"Der Absender bildet einen Hash der Nachricht und verschlüsselt ihn mit seinem privaten Schlüssel. Der Empfänger entschlüsselt mit dem öffentlichen Schlüssel und vergleicht die Hashes.\nDas sichert:\n• Integrität: Nachricht unverändert\n• Authentizität: stammt wirklich vom Absender\n• Nicht-Abstreitbarkeit: Absender kann das Signieren nicht leugnen\nZertifikate (CA/PKI) bestätigen die Echtheit öffentlicher Schlüssel."},
+{k:5,f:"Was ist der BSI-IT-Grundschutz?",
+a:"Methodik des Bundesamts für Sicherheit in der Informationstechnik für systematisches Informationssicherheits-Management.\n• Bausteine mit Standard-Sicherheitsanforderungen für typische Systeme/Prozesse\n• Vorgehen: Strukturanalyse → Schutzbedarfsfeststellung → Modellierung → Basis-Sicherheitscheck → Risikoanalyse\n• Grundlage für Zertifizierung (ISO 27001 auf Basis IT-Grundschutz)\nSchutzbedarfskategorien: normal, hoch, sehr hoch."},
+{k:5,f:"Welche Sofortmaßnahmen ergreifst du bei einem Ransomware-Befall?",
+a:"1. Betroffene Systeme sofort vom Netz trennen (Ausbreitung stoppen), nicht ausschalten (Forensik)\n2. Vorfall melden: IT-Sicherheit/Vorgesetzte; ggf. Meldepflichten (DSGVO: 72 h an Aufsichtsbehörde, BSI)\n3. Ausmaß analysieren, Einfallstor identifizieren\n4. Kein Lösegeld zahlen (keine Garantie, finanziert Täter)\n5. Systeme neu aufsetzen, Daten aus sauberen Backups wiederherstellen\n6. Lücken schließen, Lessons Learned dokumentieren"},
+
+/* ---------- 6 · Datenschutz (DSGVO) ---------- */
+{k:6,f:"Was sind personenbezogene Daten? Nenne Beispiele.",
+a:"Alle Informationen, die sich auf eine identifizierte oder identifizierbare natürliche Person beziehen (Art. 4 DSGVO).\nBeispiele: Name, Adresse, E-Mail, Telefonnummer, Geburtsdatum, IP-Adresse, Standortdaten, Personalnummer, Kfz-Kennzeichen, Fotos.\nBesondere Kategorien (Art. 9, extra geschützt): Gesundheit, Religion, politische Meinung, Sexualleben, biometrische/genetische Daten, Gewerkschaftszugehörigkeit."},
+{k:6,f:"Nenne die Grundsätze der Datenverarbeitung nach Art. 5 DSGVO.",
+a:"• Rechtmäßigkeit, Verarbeitung nach Treu und Glauben, Transparenz\n• Zweckbindung: nur für festgelegte, eindeutige Zwecke\n• Datenminimierung: nur so viele Daten wie nötig\n• Richtigkeit: Daten müssen korrekt/aktuell sein\n• Speicherbegrenzung: nicht länger als erforderlich\n• Integrität und Vertraulichkeit: angemessene Sicherheit (TOMs)\n• Rechenschaftspflicht: Einhaltung nachweisen können"},
+{k:6,f:"Wann ist die Verarbeitung personenbezogener Daten erlaubt (Rechtsgrundlagen, Art. 6)?",
+a:"Verbot mit Erlaubnisvorbehalt – erlaubt nur, wenn mindestens eine Grundlage greift:\n• Einwilligung der betroffenen Person (freiwillig, informiert, widerrufbar)\n• Vertragserfüllung oder vorvertragliche Maßnahmen\n• rechtliche Verpflichtung (z. B. Aufbewahrungsfristen)\n• lebenswichtige Interessen\n• öffentliche Aufgabe\n• berechtigtes Interesse (nach Abwägung mit Betroffeneninteressen)"},
+{k:6,f:"Welche Rechte haben betroffene Personen nach der DSGVO?",
+a:"• Auskunft (Art. 15): Welche Daten sind gespeichert?\n• Berichtigung (Art. 16) falscher Daten\n• Löschung / „Recht auf Vergessenwerden“ (Art. 17)\n• Einschränkung der Verarbeitung (Art. 18)\n• Datenübertragbarkeit (Art. 20, maschinenlesbares Format)\n• Widerspruch (Art. 21)\n• Widerruf einer Einwilligung\n• Beschwerde bei der Aufsichtsbehörde"},
+{k:6,f:"Wann braucht ein Unternehmen einen Datenschutzbeauftragten und welche Aufgaben hat er?",
+a:"Pflicht u. a. wenn in der Regel mindestens 20 Personen ständig mit automatisierter Verarbeitung personenbezogener Daten beschäftigt sind (§ 38 BDSG), bei umfangreicher Verarbeitung sensibler Daten oder systematischer Überwachung.\nAufgaben: berät und schult, überwacht die Einhaltung von DSGVO/BDSG, ist Ansprechpartner für Betroffene und Aufsichtsbehörde. Er ist weisungsfrei und darf nicht benachteiligt werden."},
+{k:6,f:"Was ist der Unterschied zwischen Datenschutz und Datensicherheit?",
+a:"• Datenschutz: Schutz der Person und ihres Grundrechts auf informationelle Selbstbestimmung – regelt, OB und WIE personenbezogene Daten verarbeitet werden dürfen (DSGVO, BDSG)\n• Datensicherheit: technischer Schutz ALLER Daten (auch Firmendaten) vor Verlust, Manipulation, unbefugtem Zugriff – das WIE des Schutzes (Backups, Verschlüsselung, Zugriffskontrolle)\nDatensicherheit ist ein Mittel, um Datenschutz umzusetzen."},
+{k:6,f:"Was ist eine Auftragsverarbeitung (AV) nach Art. 28 DSGVO?",
+a:"Ein Dienstleister verarbeitet personenbezogene Daten im Auftrag und nach Weisung des Verantwortlichen (z. B. Cloud-Hosting, Newsletter-Dienst, externe Lohnabrechnung).\nErforderlich: AV-Vertrag (AVV) mit Gegenstand, Dauer, Art der Daten, Pflichten, TOMs, Unterauftragnehmern.\nDer Verantwortliche bleibt für die Rechtmäßigkeit verantwortlich und muss den Dienstleister sorgfältig auswählen."},
+{k:6,f:"Was ist bei einer Datenpanne (Data Breach) zu tun?",
+a:"• Meldung an die Aufsichtsbehörde binnen 72 Stunden nach Bekanntwerden (Art. 33), wenn ein Risiko für Betroffene besteht\n• bei hohem Risiko: auch die Betroffenen benachrichtigen (Art. 34)\n• intern: Vorfall dokumentieren (auch wenn keine Meldepflicht), Ursache beheben, Maßnahmen verbessern\nBeispiele: verlorener unverschlüsselter USB-Stick, gehackte Kundendatenbank, Mail-Verteiler im CC statt BCC."},
+{k:6,f:"Welche Prinzipien stecken hinter „Privacy by Design“ und „Privacy by Default“?",
+a:"• Privacy by Design (Art. 25): Datenschutz von Anfang an in die Technik einbauen – z. B. Pseudonymisierung, Datenminimierung im Datenmodell, Löschkonzepte\n• Privacy by Default: datenschutzfreundliche Voreinstellungen – standardmäßig werden nur die nötigsten Daten verarbeitet (Opt-in statt Opt-out, Tracking standardmäßig aus)"},
+{k:6,f:"Unterscheide Anonymisierung und Pseudonymisierung.",
+a:"• Pseudonymisierung: identifizierende Merkmale werden durch Pseudonyme ersetzt (Kunde 4711); mit Zuordnungstabelle re-identifizierbar → weiterhin personenbezogen, DSGVO gilt\n• Anonymisierung: Personenbezug wird unumkehrbar entfernt; niemand kann die Person mehr identifizieren → DSGVO gilt nicht mehr\nPseudonymisierung ist eine empfohlene Schutzmaßnahme (TOM)."},
+{k:6,f:"Ein Kunde verlangt Auskunft über seine gespeicherten Daten. Wie läuft das ab?",
+a:"• Identität des Anfragenden prüfen (keine Daten an Dritte!)\n• unverzüglich antworten, spätestens innerhalb eines Monats\n• Inhalt: welche Daten, Zwecke, Empfänger, Speicherdauer, Herkunft, Betroffenenrechte\n• kostenlos (erste Kopie)\n• intern dokumentieren\nBei Löschverlangen: prüfen, ob gesetzliche Aufbewahrungsfristen (z. B. Rechnungen 10 Jahre) der Löschung entgegenstehen → dann Einschränkung statt Löschung."},
+
+/* ---------- 7 · Projektmanagement ---------- */
+{k:7,f:"Was kennzeichnet ein Projekt (Projektmerkmale)?",
+a:"• Einmaligkeit (kein Routinevorgang)\n• klares Ziel\n• zeitliche Begrenzung (definierter Anfang und Ende)\n• begrenzte Ressourcen (Budget, Personal)\n• Komplexität und Neuartigkeit, oft interdisziplinäres Team\n• eigene Organisation (Projektleitung, Rollen)\nAbgrenzung: Der laufende Betrieb/Support ist kein Projekt."},
+{k:7,f:"Was besagt das „magische Dreieck“ des Projektmanagements?",
+a:"Jedes Projekt balanciert drei konkurrierende Größen:\n• Zeit (Termine)\n• Kosten (Budget, Ressourcen)\n• Leistung/Qualität (Umfang, Ergebnis)\nÄndert sich eine Größe, wirkt sich das auf die anderen aus: Soll es schneller gehen, steigen die Kosten oder die Qualität/der Umfang sinkt."},
+{k:7,f:"Wofür steht SMART bei Projektzielen? Gib ein Beispiel.",
+a:"• S – spezifisch: eindeutig formuliert\n• M – messbar: überprüfbare Kriterien\n• A – attraktiv/akzeptiert: motivierend, vom Team getragen\n• R – realistisch: erreichbar\n• T – terminiert: mit Endtermin\nBeispiel: „Bis zum 30.06. ist das Kundenportal live und 90 % der Testnutzer schließen eine Bestellung ohne Support ab.“"},
+{k:7,f:"Unterscheide Lastenheft und Pflichtenheft.",
+a:"• Lastenheft: erstellt der Auftraggeber – WAS soll das System leisten und WOFÜR (Anforderungen, Ziele, Rahmenbedingungen)\n• Pflichtenheft: erstellt der Auftragnehmer auf Basis des Lastenhefts – WIE und WOMIT werden die Anforderungen umgesetzt (Lösungskonzept, Technik)\nDas Pflichtenheft wird vom Auftraggeber abgenommen und ist oft Vertragsbestandteil."},
+{k:7,f:"Beschreibe das Wasserfallmodell mit Vor- und Nachteilen.",
+a:"Sequenzielle Phasen, jede wird abgeschlossen, bevor die nächste beginnt: Anforderungsanalyse → Entwurf → Implementierung → Test → Einführung → Wartung.\nVorteile: klare Struktur/Meilensteine, gut planbar, umfangreiche Doku – geeignet bei stabilen Anforderungen.\nNachteile: unflexibel bei Änderungen, Kunde sieht Ergebnis erst spät, Fehler in frühen Phasen werden spät entdeckt."},
+{k:7,f:"Erkläre Scrum: Rollen, Artefakte, Events.",
+a:"Rollen: Product Owner (Produktvision, priorisiert Backlog), Scrum Master (schützt Team, beseitigt Hindernisse, moderiert), Entwicklungsteam (selbstorganisiert, liefert Inkrement).\nArtefakte: Product Backlog, Sprint Backlog, Produkt-Inkrement.\nEvents: Sprint (fester Takt, 1–4 Wochen), Sprint Planning, Daily Scrum (15 min), Sprint Review (Ergebnis zeigen), Sprint Retrospektive (Zusammenarbeit verbessern)."},
+{k:7,f:"Wann eignet sich agiles Vorgehen, wann klassisches?",
+a:"Agil (Scrum/Kanban): Anforderungen unklar oder änderungsanfällig, Kunde eng eingebunden, schnelle Zwischenergebnisse gewünscht, Produktentwicklung.\nKlassisch (Wasserfall/V-Modell): Anforderungen stabil und vollständig bekannt, Festpreisverträge, hohe Dokumentations-/Nachweispflichten (z. B. Behörden, Medizintechnik).\nPraxis oft hybrid."},
+{k:7,f:"Was ist Kanban und wofür wird ein Kanban-Board genutzt?",
+a:"Methode zur Visualisierung und Steuerung des Arbeitsflusses.\n• Board mit Spalten (z. B. To Do → In Arbeit → Test → Fertig), Aufgaben als Karten\n• WIP-Limits begrenzen parallele Arbeit → Engpässe werden sichtbar\n• Pull-Prinzip: Team zieht neue Aufgaben, wenn Kapazität frei ist\n• kontinuierlicher Fluss statt fester Sprints; Kennzahl: Durchlaufzeit"},
+{k:7,f:"Wozu dient ein Gantt-Diagramm?",
+a:"Balkendiagramm zur Projektterminplanung: Zeilen = Vorgänge/Arbeitspakete, horizontale Achse = Zeit, Balkenlänge = Dauer.\nZeigt Start/Ende, Abhängigkeiten (Pfeile), Meilensteine (Rauten) und Fortschritt.\nStärken: sehr anschaulich für Terminplan und Überblick.\nGrenzen: bei sehr großen Projekten unübersichtlich; kritischer Pfad besser im Netzplan erkennbar."},
+{k:7,f:"Was ist der kritische Pfad in einem Netzplan?",
+a:"Die längste Kette voneinander abhängiger Vorgänge – sie bestimmt die minimale Projektdauer.\nVorgänge auf dem kritischen Pfad haben keinen Puffer: Verzögert sich einer, verschiebt sich das Projektende.\nBegriffe: FAZ/SAZ (frühester/spätester Anfangszeitpunkt), Gesamtpuffer = SAZ − FAZ; kritisch = Puffer 0."},
+{k:7,f:"Wer sind Stakeholder und warum ist eine Stakeholderanalyse wichtig?",
+a:"Alle Personen/Gruppen, die vom Projekt betroffen sind oder es beeinflussen: Auftraggeber, Nutzer, Team, Management, Betriebsrat, Lieferanten, ggf. Behörden.\nAnalyse: Stakeholder identifizieren, nach Einfluss und Interesse bewerten (Matrix), passende Kommunikation ableiten.\nZiel: Unterstützer gewinnen, Widerstände früh erkennen – viele Projekte scheitern an Menschen, nicht an Technik."},
+{k:7,f:"Welche typischen Projektphasen gibt es (klassisch)?",
+a:"1. Initiierung/Definition: Ziele, Auftrag, Machbarkeit, Projektauftrag (Kick-off)\n2. Planung: Arbeitspakete (Projektstrukturplan), Termine, Ressourcen, Kosten, Risiken\n3. Durchführung/Steuerung: Umsetzung, Fortschrittskontrolle (Soll-Ist), Änderungsmanagement\n4. Abschluss: Abnahme, Übergabe, Doku, Lessons Learned, Auflösung der Projektorganisation"},
+{k:7,f:"Was gehört zu einem Risikomanagement im Projekt?",
+a:"1. Risiken identifizieren (Brainstorming, Checklisten)\n2. Bewerten: Eintrittswahrscheinlichkeit × Schadenshöhe (Risikomatrix)\n3. Maßnahmen planen:\n• vermeiden (Ursache beseitigen)\n• vermindern (Wahrscheinlichkeit/Schaden senken)\n• übertragen (Versicherung, Dienstleister)\n• akzeptieren (bewusst tragen)\n4. Überwachen und Maßnahmen nachhalten (Risikoliste pflegen)"},
+{k:7,f:"Was ist ein Meilenstein?",
+a:"Ein Ereignis von besonderer Bedeutung im Projektplan – markiert das überprüfbare Ende einer Phase oder ein Zwischenergebnis (z. B. „Pflichtenheft abgenommen“, „Go-Live“).\nMeilensteine haben keine Dauer, dienen der Fortschrittskontrolle und sind oft Entscheidungspunkte (weiter/stopp).\nIm Gantt-Diagramm als Raute dargestellt."},
+
+/* ---------- 8 · Wirtschaft & Kaufmännisches ---------- */
+{k:8,f:"Wie funktioniert eine Nutzwertanalyse?",
+a:"Bewertungsverfahren für Alternativen anhand mehrerer (auch nicht-monetärer) Kriterien:\n1. Kriterien festlegen (z. B. Preis, Support, Bedienbarkeit)\n2. Kriterien gewichten (Summe = 100 %)\n3. Jede Alternative pro Kriterium mit Punkten bewerten\n4. Punkte × Gewichtung, je Alternative summieren\n5. Höchster Nutzwert gewinnt.\nVorteil: transparent und nachvollziehbar; Achtung: Gewichtung ist subjektiv."},
+{k:8,f:"Was bedeutet Make-or-Buy? Nenne Entscheidungskriterien.",
+a:"Selbst erstellen (make) oder einkaufen (buy) – z. B. Individualsoftware entwickeln vs. Standardsoftware kaufen.\nKriterien:\n• Kosten (einmalig + laufend), Zeit bis zur Verfügbarkeit\n• eigenes Know-how und Kapazität\n• strategische Bedeutung/Kernkompetenz, Alleinstellungsmerkmal\n• Abhängigkeit vom Anbieter, Anpassbarkeit\n• Wartung, Support, Datenschutz"},
+{k:8,f:"Unterscheide fixe und variable Kosten sowie Einzel- und Gemeinkosten.",
+a:"• Fixkosten: unabhängig von der Menge (Miete, Gehälter, Lizenzen)\n• Variable Kosten: steigen mit der Menge (Material, Cloud-Verbrauch)\n• Einzelkosten: direkt einem Produkt/Auftrag zurechenbar (Programmierstunden für Projekt X)\n• Gemeinkosten: nicht direkt zurechenbar, werden umgelegt (Verwaltung, Gebäude)\nGesamtkosten = fix + variabel; Stückkosten sinken bei Fixkosten mit steigender Menge (Degression)."},
+{k:8,f:"Wie berechnet man die Amortisationszeit? Beispiel: Investition 12.000 €, jährliche Ersparnis 4.000 €.",
+a:"Amortisationszeit = Anschaffungskosten ÷ jährlicher Rückfluss (Ersparnis/Gewinn)\n= 12.000 € ÷ 4.000 €/Jahr = 3 Jahre.\nNach 3 Jahren hat sich die Investition bezahlt gemacht – je kürzer, desto besser.\nDaneben: Kostenvergleichsrechnung (Alternative mit geringsten Gesamtkosten je Periode wählen)."},
+{k:8,f:"Nach welchen Kriterien vergleichst du Angebote (Angebotsvergleich)?",
+a:"Quantitativ: Bezugspreis berechnen –\nListenpreis − Rabatt − Skonto + Versand/Verpackung = Bezugspreis.\nQualitativ: Qualität, Lieferzeit, Zuverlässigkeit/Referenzen, Service & Support, Garantie, Zahlungsbedingungen, Nachhaltigkeit, Standort/Datenschutz.\nFür die Gesamtentscheidung bietet sich eine Nutzwertanalyse an, die beides kombiniert."},
+{k:8,f:"Was ist Skonto? Beispiel: Rechnung 2.000 €, 2 % Skonto bei Zahlung in 10 Tagen.",
+a:"Preisnachlass für schnelle Zahlung.\n2 % von 2.000 € = 40 € → Zahlbetrag 1.960 € bei Zahlung innerhalb von 10 Tagen.\nSkonto lohnt sich fast immer – auf das Jahr hochgerechnet entspricht es einem sehr hohen Zinssatz; notfalls sogar Kredit aufnehmen, um Skonto zu ziehen."},
+{k:8,f:"Unterscheide Kaufvertrag, Werkvertrag und Dienstvertrag.",
+a:"• Kaufvertrag (§ 433 BGB): Ware gegen Geld (Hardware, Lizenz)\n• Werkvertrag (§ 631): geschuldet ist ein ERFOLG/Ergebnis (fertige Individualsoftware) – Abnahme, Gewährleistung\n• Dienstvertrag (§ 611): geschuldet ist das TÄTIGWERDEN, kein Erfolg (Beratung, Admin nach Stunden, Arbeitsvertrag)\nSonderform: Mietvertrag bei SaaS/Cloud-Diensten."},
+{k:8,f:"Wie kommt ein Vertrag zustande und was gilt für Angebote?",
+a:"Zwei übereinstimmende Willenserklärungen: Angebot + Annahme.\n• Ein Angebot ist grundsätzlich bindend (§ 145 BGB), außer es ist „freibleibend/unverbindlich“\n• Schaufenster/Onlineshop-Auslagen sind meist nur „invitatio ad offerendum“ (Aufforderung, ein Angebot abzugeben)\n• verspätete oder abgeänderte Annahme = neues Angebot\nFormfreiheit: auch mündlich gültig (Ausnahmen z. B. Kündigung schriftlich)."},
+{k:8,f:"Welche Rechte hat der Käufer bei Mängeln (Gewährleistung)?",
+a:"Reihenfolge:\n1. Nacherfüllung: Nachbesserung (Reparatur) oder Neulieferung – Wahl hat der Käufer\n2. Wenn diese scheitert: Rücktritt (Geld zurück) oder Minderung; ggf. Schadensersatz\nFristen: 2 Jahre bei Neuware; B2C: Beweislastumkehr im ersten Jahr (Mangel gilt als anfänglich).\nGewährleistung = gesetzlich; Garantie = freiwillige Zusatzleistung des Herstellers."},
+{k:8,f:"Unterscheide Aufbau- und Ablauforganisation. Welche Organisationsformen gibt es?",
+a:"• Aufbauorganisation: Struktur/Hierarchie – wer ist wem unterstellt (Organigramm)\n• Ablauforganisation: Gestaltung der Arbeitsprozesse – wer macht was, wann, womit (Prozesse, BPMN)\nFormen: Einlinien-System (klare Wege, lange Dienstwege), Mehrlinien (Fachautorität, Kompetenzkonflikte), Stablinien (Berater ohne Weisung), Matrix (z. B. Abteilung × Projekt – flexibel, aber zwei Vorgesetzte)."},
+{k:8,f:"Was untersucht eine Marktanalyse und was sind Marktformen?",
+a:"Marktanalyse: Bedarf, Zielgruppen, Marktvolumen/-potenzial, Wettbewerber, Preise, Trends – Grundlage für Produkt- und Marketingentscheidungen.\nMarktformen nach Anbieterzahl:\n• Monopol: ein Anbieter\n• Oligopol: wenige Anbieter\n• Polypol: viele Anbieter (vollständige Konkurrenz)\nDer Preis bildet sich aus Angebot und Nachfrage."},
+{k:8,f:"Was gehört zu einer guten (Kunden-)Präsentation?",
+a:"Vorbereitung: Zielgruppe analysieren (Fachwissen? Entscheidungsträger?), Ziel definieren, Technik testen.\nAufbau: Einstieg (Problem/Nutzen) → Hauptteil (Lösung, Vorteile statt Technikdetails) → Schluss (Zusammenfassung, Handlungsaufforderung).\nFolien: wenig Text, aussagekräftige Visualisierungen, einheitliches Design, gute Kontraste.\nAuftritt: frei sprechen, Blickkontakt, Zeit einhalten, auf Fragen vorbereitet sein."},
+{k:8,f:"Was sind Kennzahlen wie Umsatz, Gewinn und Deckungsbeitrag?",
+a:"• Umsatz (Erlös) = Absatzmenge × Verkaufspreis\n• Gewinn = Umsatz − Gesamtkosten\n• Deckungsbeitrag = Umsatz − variable Kosten → deckt die Fixkosten; was darüber liegt, ist Gewinn\n• Break-even-Punkt: Absatzmenge, bei der Gesamterlös = Gesamtkosten (Gewinnschwelle):\nMenge = Fixkosten ÷ (Preis − variable Stückkosten)"},
+{k:8,f:"Berechne den Break-even: Fixkosten 50.000 €, Verkaufspreis 250 €, variable Stückkosten 150 €.",
+a:"Deckungsbeitrag pro Stück = 250 € − 150 € = 100 €\nBreak-even-Menge = 50.000 € ÷ 100 € = 500 Stück.\nAb dem 501. Stück macht das Unternehmen Gewinn; jedes verkaufte Stück trägt 100 € zur Deckung der Fixkosten bei."},
+
+/* ---------- 9 · Künstliche Intelligenz ---------- */
+{k:9,f:"Was ist Künstliche Intelligenz und wie hängen KI, Machine Learning und Deep Learning zusammen?",
+a:"KI: Systeme, die Aufgaben lösen, die menschliche Intelligenz erfordern (Verstehen, Lernen, Schlussfolgern).\nTeilmengen:\n• Machine Learning (ML): Algorithmen lernen Muster aus Daten, statt explizit programmiert zu werden\n• Deep Learning (DL): ML mit tiefen künstlichen neuronalen Netzen (viele Schichten) – stark bei Bildern, Sprache, Text\nAlso: DL ⊂ ML ⊂ KI."},
+{k:9,f:"Unterscheide überwachtes, unüberwachtes und bestärkendes Lernen.",
+a:"• Überwacht (supervised): Training mit gelabelten Daten (Eingabe + richtige Antwort) – Klassifikation (Spam/kein Spam), Regression (Preisprognose)\n• Unüberwacht (unsupervised): Muster in ungelabelten Daten finden – Clustering (Kundensegmente), Anomalieerkennung\n• Bestärkend (reinforcement): Agent lernt durch Belohnung/Bestrafung aus Versuch und Irrtum (Spiele, Robotik)"},
+{k:9,f:"Warum sind Trainingsdaten so entscheidend für ML-Modelle?",
+a:"Das Modell lernt ausschließlich aus den Daten – Qualität und Repräsentativität bestimmen das Ergebnis („garbage in, garbage out“).\nProbleme:\n• Bias: einseitige Daten → diskriminierende Ergebnisse (z. B. Bewerbungsauswahl)\n• zu wenige/fehlerhafte Daten → schlechte Vorhersagen\n• Overfitting: Modell lernt Trainingsdaten auswendig, versagt bei neuen Daten\nDaher: Daten prüfen/bereinigen, Aufteilung in Trainings- und Testdaten."},
+{k:9,f:"Nenne typische Einsatzgebiete von KI im Unternehmen.",
+a:"• Chatbots und Support-Assistenten\n• Text-/Bild-/Code-Generierung (generative KI wie GPT)\n• Spamfilter, Betrugserkennung, IT-Security (Anomalieerkennung)\n• Prognosen: Absatz, Wartungsbedarf (Predictive Maintenance)\n• Bilderkennung: Qualitätskontrolle, Medizin\n• Sprachverarbeitung: Übersetzung, Spracherkennung, Sentiment-Analyse\n• Empfehlungssysteme (Shop, Streaming)"},
+{k:9,f:"Welche Chancen und Risiken bringt der Einsatz von KI?",
+a:"Chancen: Automatisierung von Routine, Effizienz/Kostensenkung, bessere Entscheidungen durch Datenanalyse, 24/7-Verfügbarkeit, neue Produkte.\nRisiken:\n• Bias/Diskriminierung, fehlende Nachvollziehbarkeit (Blackbox)\n• Halluzinationen: überzeugend falsche Ausgaben\n• Datenschutz (Trainings-/Eingabedaten!), Urheberrecht\n• Abhängigkeit, Deepfakes/Missbrauch, Arbeitsplatzveränderungen\n→ Ergebnisse immer kritisch prüfen (Human in the Loop)."},
+{k:9,f:"Was ist generative KI und was sind Large Language Models (LLMs)?",
+a:"Generative KI erzeugt neue Inhalte (Text, Bilder, Audio, Code) statt nur zu klassifizieren.\nLLMs: sehr große neuronale Netze, trainiert auf riesigen Textmengen; sie sagen das jeweils wahrscheinlichste nächste Token voraus (z. B. GPT, Claude).\nEigenschaften: sehr vielseitig per Prompt steuerbar; aber kein Faktenwissen-Garant → Halluzinationen möglich, Wissensstand begrenzt (Trainingsstichtag)."},
+{k:9,f:"Was ist beim Einsatz von KI-Tools im Arbeitsalltag zu beachten (z. B. ChatGPT)?",
+a:"• keine personenbezogenen Daten oder Geschäftsgeheimnisse in öffentliche Tools eingeben (DSGVO, Vertraulichkeit)\n• Unternehmensrichtlinien zum KI-Einsatz beachten\n• Ergebnisse prüfen: Halluzinationen, veraltete Infos, Lizenz-/Urheberrechtsfragen bei generiertem Code\n• Transparenz: KI-Nutzung ggf. kennzeichnen\n• EU AI Act: risikobasierte Regulierung von KI-Systemen in der EU"},
+{k:9,f:"Was versteht man unter einem künstlichen neuronalen Netz (Grundidee)?",
+a:"Dem Gehirn nachempfundenes Modell aus künstlichen Neuronen in Schichten:\n• Eingabeschicht nimmt Daten auf (z. B. Pixel)\n• verdeckte Schichten (hidden layers) verrechnen gewichtete Summen + Aktivierungsfunktion\n• Ausgabeschicht liefert das Ergebnis (z. B. „Katze: 0,93“)\nTraining: Gewichte werden schrittweise angepasst, um den Fehler zu minimieren (Backpropagation). Viele Schichten = Deep Learning."},
+{k:9,f:"Ein Kunde möchte einen KI-Chatbot für den Support. Welche Punkte sprichst du in der Beratung an?",
+a:"• Anwendungsfälle/Umfang: FAQ, Ticketvorqualifizierung, Übergabe an Menschen\n• Datenbasis: Wissensdatenbank aktuell? Trainings-/Kontextdaten\n• Datenschutz: Kundendaten, AV-Vertrag, Datenstandort EU, Hinweis dass mit Bot gesprochen wird\n• Qualität: Halluzinationsrisiko, Eskalationspfad, Feedback-Schleife\n• Kosten/Nutzen: Lizenz-/API-Kosten vs. eingesparte Supportzeit\n• Barrierefreiheit und Mehrsprachigkeit"}
+];
+
+/* ======================= State ======================= */
+
+const STORE_KEY = "ap1-lernkarten-v1";
+const THEME_KEY = "ap1-theme";
+
+let status = {};           // cardIndex -> "known" | "unknown"
+try { status = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch (e) { status = {}; }
+
+let filterCat = -1;        // -1 = alle
+let onlyUnknown = false;
+let deck = [];             // Indizes in KARTEN
+let pos = 0;
+let flipped = false;
+
+const $ = (id) => document.getElementById(id);
+
+/* ======================= Theme ======================= */
+
+(function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+})();
+$("btnTheme").addEventListener("click", () => {
+  const root = document.documentElement;
+  const current = root.dataset.theme ||
+    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  const next = current === "dark" ? "light" : "dark";
+  root.dataset.theme = next;
+  localStorage.setItem(THEME_KEY, next);
+});
+
+/* ======================= Helpers ======================= */
+
+function saveStatus() { localStorage.setItem(STORE_KEY, JSON.stringify(status)); }
+
+function catStats(cat) {
+  let total = 0, known = 0, unknown = 0;
+  KARTEN.forEach((c, i) => {
+    if (cat !== -1 && c.k !== cat) return;
+    total++;
+    if (status[i] === "known") known++;
+    else if (status[i] === "unknown") unknown++;
+  });
+  return { total, known, unknown };
+}
+
+function buildDeck() {
+  deck = [];
+  KARTEN.forEach((c, i) => {
+    if (filterCat !== -1 && c.k !== filterCat) return;
+    if (onlyUnknown && status[i] === "known") return;
+    deck.push(i);
+  });
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+/* ======================= Overview ======================= */
+
+function renderOverview() {
+  $("factCards").innerHTML = "<strong>" + KARTEN.length + "</strong> Lernkarten";
+  const s = catStats(-1);
+  $("totalNums").textContent = s.known + " gewusst · " + s.unknown + " nochmal üben · " +
+    (s.total - s.known - s.unknown) + " neu";
+  $("totalGood").style.width = (s.known / s.total * 100) + "%";
+  $("totalBad").style.width = (s.unknown / s.total * 100) + "%";
+
+  const grid = $("catGrid");
+  grid.innerHTML = "";
+  KATEGORIEN.forEach((cat, i) => {
+    const st = catStats(i);
+    const el = document.createElement("button");
+    el.className = "cat-card";
+    el.innerHTML =
+      '<div class="head"><h3>' + cat.name + '</h3><span class="count">' +
+      st.known + "/" + st.total + '</span></div>' +
+      '<div class="bar"><div class="seg-good" style="width:' + (st.known / st.total * 100) +
+      '%"></div><div class="seg-bad" style="width:' + (st.unknown / st.total * 100) + '%"></div></div>' +
+      '<div class="topics">' + cat.topics + "</div>";
+    el.addEventListener("click", () => startStudy(i, false));
+    grid.appendChild(el);
+  });
+}
+
+/* ======================= Study ======================= */
+
+function renderChips() {
+  const nav = $("chips");
+  nav.innerHTML = "";
+  const mk = (label, cat) => {
+    const b = document.createElement("button");
+    b.className = "chip" + (filterCat === cat ? " active" : "");
+    b.textContent = label;
+    b.addEventListener("click", () => { filterCat = cat; pos = 0; refreshStudy(); });
+    nav.appendChild(b);
+  };
+  mk("Alle", -1);
+  KATEGORIEN.forEach((c, i) => mk(c.name, i));
+}
+
+function renderCard() {
+  const empty = deck.length === 0;
+  $("cardArea").style.display = empty ? "none" : "";
+  $("emptyState").style.display = empty ? "" : "none";
+  if (empty) { $("counter").textContent = "0 / 0"; updateFilterBar(); return; }
+
+  if (pos >= deck.length) pos = deck.length - 1;
+  if (pos < 0) pos = 0;
+  const idx = deck[pos];
+  const card = KARTEN[idx];
+
+  const fc = $("flashcard");
+  flipped = false;
+  fc.classList.remove("flipped");
+  $("rateRow").classList.remove("visible");
+
+  $("frontCat").textContent = KATEGORIEN[card.k].name;
+  $("backCat").textContent = KATEGORIEN[card.k].name;
+  $("frontText").textContent = card.f;
+  $("backText").textContent = card.a;
+
+  const st = status[idx];
+  $("frontState").innerHTML =
+    '<span class="state-dot ' + (st === "known" ? "known" : st === "unknown" ? "unknown" : "fresh") +
+    '"></span>' + (st === "known" ? "Gewusst" : st === "unknown" ? "Nochmal üben" : "Frage");
+
+  $("counter").textContent = (pos + 1) + " / " + deck.length;
+  $("btnPrev").disabled = pos === 0;
+  $("btnNext").disabled = pos === deck.length - 1;
+  updateFilterBar();
+}
+
+function updateFilterBar() {
+  let total = 0, known = 0, unknown = 0;
+  KARTEN.forEach((c, i) => {
+    if (filterCat !== -1 && c.k !== filterCat) return;
+    total++;
+    if (status[i] === "known") known++;
+    else if (status[i] === "unknown") unknown++;
+  });
+  $("filterGood").style.width = total ? (known / total * 100) + "%" : "0";
+  $("filterBad").style.width = total ? (unknown / total * 100) + "%" : "0";
+}
+
+function refreshStudy() {
+  renderChips();
+  buildDeck();
+  $("btnOnlyUnknown").classList.toggle("toggled", onlyUnknown);
+  renderCard();
+}
+
+function startStudy(cat, unknownOnly) {
+  filterCat = cat;
+  onlyUnknown = unknownOnly;
+  pos = 0;
+  $("overview").classList.add("hidden");
+  $("study").classList.add("active");
+  refreshStudy();
+}
+
+function goHome() {
+  $("study").classList.remove("active");
+  $("overview").classList.remove("hidden");
+  renderOverview();
+  window.scrollTo({ top: 0 });
+}
+
+function flip() {
+  if (deck.length === 0) return;
+  flipped = !flipped;
+  $("flashcard").classList.toggle("flipped", flipped);
+  $("rateRow").classList.toggle("visible", flipped);
+}
+
+function move(delta) {
+  if (deck.length === 0) return;
+  const np = pos + delta;
+  if (np < 0 || np >= deck.length) return;
+  pos = np;
+  renderCard();
+}
+
+function rate(value) {
+  if (deck.length === 0 || !flipped) return;
+  const idx = deck[pos];
+  status[idx] = value;
+  saveStatus();
+  if (onlyUnknown && value === "known") {
+    deck.splice(pos, 1);      // Karte verlässt den Wiederholungs-Stapel
+    renderCard();
+  } else if (pos < deck.length - 1) {
+    pos++;
+    renderCard();
+  } else {
+    renderCard();             // letzte Karte: Status/Balken aktualisieren
+  }
+}
+
+/* ======================= Events ======================= */
+
+$("btnStartAll").addEventListener("click", () => startStudy(-1, false));
+$("btnStartUnknown").addEventListener("click", () => startStudy(-1, true));
+$("btnEmptyAll").addEventListener("click", () => { onlyUnknown = false; refreshStudy(); });
+$("btnHome").addEventListener("click", goHome);
+$("btnReset").addEventListener("click", () => {
+  if (confirm("Gesamten Lernfortschritt wirklich zurücksetzen?")) {
+    status = {};
+    saveStatus();
+    renderOverview();
+  }
+});
+
+$("flashcard").addEventListener("click", flip);
+$("flashcard").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); flip(); }
+});
+$("btnFlip").addEventListener("click", flip);
+$("btnPrev").addEventListener("click", () => move(-1));
+$("btnNext").addEventListener("click", () => move(1));
+$("btnKnown").addEventListener("click", () => rate("known"));
+$("btnUnknown").addEventListener("click", () => rate("unknown"));
+$("btnShuffle").addEventListener("click", () => { shuffle(deck); pos = 0; renderCard(); });
+$("btnOnlyUnknown").addEventListener("click", () => { onlyUnknown = !onlyUnknown; pos = 0; refreshStudy(); });
+
+document.addEventListener("keydown", (e) => {
+  if (!$("study").classList.contains("active")) return;
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+  switch (e.key) {
+    case " ": e.preventDefault(); flip(); break;
+    case "ArrowLeft": move(-1); break;
+    case "ArrowRight": move(1); break;
+    case "1": rate("known"); break;
+    case "2": rate("unknown"); break;
+  }
+});
+
+/* ======================= Init ======================= */
+renderOverview();
+</script>
+</body>
+</html>
